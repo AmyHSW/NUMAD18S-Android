@@ -1,0 +1,14 @@
+.DS_Store
+
+# SDK location
+/local.properties
+
+# Android Studio files
+/.idea
+*.iml
+
+# Build files
+/build
+.gradle
+/captures
+.externalNativeBuild

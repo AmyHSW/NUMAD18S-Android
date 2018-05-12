@@ -1,5 +1,9 @@
 <resources>
     <string name="app_name">NUMAD18S-ShuwanHuang</string>
-    <string name="edit_message">Enter a message</string>
-    <string name="button_send">Send</string>
+    <string name="app_title">Shuwan Huang</string>
+    <string name="button_about">About</string>
+    <string name="button_error">Generate Error</string>
+    <string name="view_name">Shuwan Huang</string>
+    <string name="view_email">huang.shuw@husky.neu.edu</string>
+    <string name="view_year">1st year at NEU</string>
 </resources>

@@ -9,6 +9,12 @@
 
 # Build files
 /build
-.gradle
+/gradle
 /captures
+/.gradle
+build.gradle
+settings.gradle
+gradlew
+gradlew.bat
+gradle.properties
 .externalNativeBuild

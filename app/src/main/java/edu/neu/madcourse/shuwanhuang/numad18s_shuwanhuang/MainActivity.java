@@ -44,7 +44,7 @@ public class MainActivity extends AppCompatActivity {
      * @param view the View object that was clicked
      */
     public void onClickAbout(View view) {
-        Intent intent = new Intent(this, DisplayMessageActivity.class);
+        Intent intent = new Intent(this, DisplayAboutActivity.class);
         startActivity(intent);
     }
 

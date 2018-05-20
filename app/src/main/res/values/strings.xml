@@ -6,4 +6,5 @@
     <string name="view_name">Shuwan Huang</string>
     <string name="view_email">huang.shuw@husky.neu.edu</string>
     <string name="view_year">1st year at NEU</string>
+    <string name="error">This is an example error in test mode</string>
 </resources>

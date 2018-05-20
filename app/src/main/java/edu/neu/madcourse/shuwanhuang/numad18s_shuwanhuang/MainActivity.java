@@ -2,6 +2,7 @@ package edu.neu.madcourse.shuwanhuang.numad18s_shuwanhuang;
 
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.provider.Settings;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
@@ -53,6 +54,13 @@ public class MainActivity extends AppCompatActivity {
      * @param view the View object that was clicked
      */
     public void onClickGenerateError(View view) {
-        throw new RuntimeException("This is a crash");
+        String testLabSetting =
+                Settings.System.getString(getContentResolver(), "firebase.test.lab");
+        if (testLabSetting != null && "true".equals(testLabSetting)) {
+            TextView error = findViewById(R.id.error);
+            error.setVisibility(View.VISIBLE);
+        } else {
+            throw new RuntimeException("This is a crash");
+        }
     }
 }

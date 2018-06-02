@@ -45,7 +45,7 @@ public class MainActivity extends AppCompatActivity {
      * @param view the View object that was clicked
      */
     public void onClickAbout(View view) {
-        Intent intent = new Intent(this, DisplayAboutActivity.class);
+        Intent intent = new Intent(this, AboutActivity.class);
         startActivity(intent);
     }
 
@@ -62,5 +62,14 @@ public class MainActivity extends AppCompatActivity {
         } else {
             throw new RuntimeException("This is a crash");
         }
+    }
+
+    /**
+     * Called when the user taps the Dictionary button.
+     * @param view the View object that was clicked
+     */
+    public void onClickDictionary(View view) {
+        Intent intent = new Intent(this, DictionaryActivity.class);
+        startActivity(intent);
     }
 }

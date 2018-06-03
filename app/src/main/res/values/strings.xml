@@ -12,5 +12,6 @@
     <string name="error">This is an example error in test mode</string>
     <string name="dictionary_activity_title">Test Dictionary</string>
     <string name="about_activity_title">About</string>
+    <string name="acknowledgements_title">Acknowledgements</string>
     <string name="button_clear">Clear</string>
 </resources>

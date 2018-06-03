@@ -14,19 +14,20 @@
         <activity android:name=".MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
+
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
         <activity
             android:name=".AboutActivity"
-            android:label="@string/about_activity_title">
-
-        </activity>
+            android:label="@string/about_activity_title"></activity>
         <activity
             android:name=".DictionaryActivity"
-            android:label="@string/dictionary_activity_title">
-        </activity>
+            android:label="@string/dictionary_activity_title"></activity>
+        <activity android:name=".AcknowledgementsActivity"
+            android:label="@string/acknowledgements_title">
 
+        </activity>
     </application>
 
 </manifest>

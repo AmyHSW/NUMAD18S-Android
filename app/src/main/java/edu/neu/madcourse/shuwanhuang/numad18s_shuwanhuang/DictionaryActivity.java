@@ -1,5 +1,6 @@
 package edu.neu.madcourse.shuwanhuang.numad18s_shuwanhuang;
 
+import android.content.Intent;
 import android.media.AudioManager;
 import android.media.ToneGenerator;
 import android.support.v7.app.AppCompatActivity;
@@ -30,15 +31,16 @@ public class DictionaryActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_dictionary);
 
+        beep = new ToneGenerator(AudioManager.STREAM_MUSIC, 100);
         dictionary = new DatabaseTable(this);
         wordsEntered = new LinkedList<>();
-        beep = new ToneGenerator(AudioManager.STREAM_MUSIC, 100);
         hookupButton();
         addTextChangedListener();
     }
 
     private void hookupButton() {
         inputEditText = findViewById(R.id.editText);
+        wordsEnteredListView = findViewById(R.id.words);
         Button clearButton = findViewById(R.id.clearButton);
         clearButton.setOnClickListener(new Button.OnClickListener() {
             public void onClick(View v) {
@@ -62,8 +64,6 @@ public class DictionaryActivity extends AppCompatActivity {
                 if (word.length() >= MIN_WORD_LENGTH && dictionary.containsWord(word)) {
                     beep();
                     updateWordList(word);
-//                    wordsEntered.addFirst(word);
-//                    adapter.notifyDataSetChanged();
                 } else {
                     Log.v("Not Exist", word);
                 }
@@ -81,10 +81,14 @@ public class DictionaryActivity extends AppCompatActivity {
     }
 
     private void updateWordList(String word) {
-        wordsEnteredListView = findViewById(R.id.words);
         wordsEntered.addFirst(word);
         ArrayAdapter<String> adapter = new ArrayAdapter<>(
                 DictionaryActivity.this, R.layout.word_list_item, wordsEntered);
         wordsEnteredListView.setAdapter(adapter);
+    }
+
+    public void onClickAcknowledgements(View view) {
+        Intent intent = new Intent(this, AcknowledgementsActivity.class);
+        startActivity(intent);
     }
 }

@@ -38,7 +38,7 @@ public class DatabaseTable {
     }
 
     public boolean containsWord(String word) {
-        return getWordMatches(word, null) != null;
+        return getWordMatches(word.toLowerCase(), null) != null;
     }
 
     public Cursor getWordMatches(String query, String[] columns) {

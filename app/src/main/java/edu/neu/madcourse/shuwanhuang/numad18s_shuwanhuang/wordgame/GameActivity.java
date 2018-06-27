@@ -8,24 +8,21 @@
  ***/
 package edu.neu.madcourse.shuwanhuang.numad18s_shuwanhuang.wordgame;
 
-import android.app.Activity;
-import android.database.Cursor;
 import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.os.Handler;
-import android.util.Log;
+import android.support.v4.app.FragmentActivity;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import edu.neu.madcourse.shuwanhuang.numad18s_shuwanhuang.DatabaseTable;
 import edu.neu.madcourse.shuwanhuang.numad18s_shuwanhuang.R;
 
-public class GameActivity extends Activity {
+public class GameActivity extends FragmentActivity {
+    private static final int MUSIC_ON = 0;
+    private static final int MUSIC_OFF = 1;
     public static final String COL_WORD = "WORD";
     public static final String KEY_RESTORE = "key_restore";
     public static final String PREF_RESTORE = "pref_restore";
     private MediaPlayer mMediaPlayer;
+    private int musicLevel = MUSIC_ON;
     private Handler mHandler = new Handler();
     private GameFragment mGameFragment;
 
@@ -45,8 +42,37 @@ public class GameActivity extends Activity {
 //        }
     }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+        mMediaPlayer = MediaPlayer.create(this, R.raw.solar_eclipse);
+        mMediaPlayer.setVolume(0.5f, 0.5f);
+        mMediaPlayer.setLooping(true);
+        mMediaPlayer.start();
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        mMediaPlayer.stop();
+        mMediaPlayer.reset();
+        mMediaPlayer.release();
+    }
+
+    public void pauseMusic() {
+        mMediaPlayer.pause();
+    }
+
+    public void resumeMusic() {
+        mMediaPlayer.start();
+    }
+
     public void restartGame() {
-        //mGameFragment.restartGame();
+    // mGameFragment.restartGame();
+    }
+
+    public void onSelectWord() {
+        mGameFragment.onSelectWord();
     }
 //
 //    public void reportWinner(final Tile.Owner winner) {

@@ -27,9 +27,7 @@
     <dimen name="menu_button_margin">4dp</dimen>
     <dimen name="menu_button_padding">10dp</dimen>
 
-    <dimen name="control_text_size">10dp</dimen>
-    <dimen name="control_button_size">10dp</dimen>
-    <dimen name="control_button_margin">4dp</dimen>
-    <dimen name="word_padding">10dp</dimen>
+    <dimen name="info_padding">30dp</dimen>
+    <dimen name="info_text_size">25sp</dimen>
 
 </resources>

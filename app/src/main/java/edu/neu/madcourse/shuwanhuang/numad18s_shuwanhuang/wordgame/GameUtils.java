@@ -1,9 +1,28 @@
 package edu.neu.madcourse.shuwanhuang.numad18s_shuwanhuang.wordgame;
 
+import edu.neu.madcourse.shuwanhuang.numad18s_shuwanhuang.DatabaseTable;
+
 public class GameUtils {
 
-    public static int calculateScore(String word) {
-        return 0; // TODO: HSW
+    private static final int[] SCORES = {1, 3, 3, 2, 1, 4, 2, 4, 1, 8, 5, 1, 3, 1,
+            1, 3, 10, 1, 1, 1, 1, 4, 4, 8, 4, 10};
+    private static final int MAX_LEN = 9;
+    private static final int BONUS = 20;
+    private static final int PENALTY = -5;
+
+    public static int calculateScore(DatabaseTable dbTable, String word) {
+        if (!dbTable.containsWord(word)) {
+            return PENALTY;
+        }
+        char[] chs = word.toCharArray();
+        int score = 0;
+        for (char c : chs) {
+            score += SCORES[c - 'a'];
+        }
+        if (word.length() == MAX_LEN) {
+            score += BONUS;
+        }
+        return score;
     }
 
     public static boolean isConnected(int a, int b) {

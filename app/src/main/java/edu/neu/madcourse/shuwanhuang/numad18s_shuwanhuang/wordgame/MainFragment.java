@@ -24,6 +24,7 @@ public class MainFragment extends Fragment {
         View newButton = rootView.findViewById(R.id.new_button);
         View continueButton = rootView.findViewById(R.id.continue_button);
         View aboutButton = rootView.findViewById(R.id.about_button);
+        View acknowledgeButton = rootView.findViewById(R.id.acknowledge_button);
         newButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -44,6 +45,22 @@ public class MainFragment extends Fragment {
             public void onClick(View view) {
                 AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
                 builder.setMessage(R.string.about_text);
+                builder.setCancelable(false);
+                builder.setPositiveButton(R.string.ok_label,
+                        new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialogInterface, int i) {
+                                // nothing
+                            }
+                        });
+                mDialog = builder.show();
+            }
+        });
+        acknowledgeButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+                builder.setMessage(R.string.acknowledgements_text);
                 builder.setCancelable(false);
                 builder.setPositiveButton(R.string.ok_label,
                         new DialogInterface.OnClickListener() {

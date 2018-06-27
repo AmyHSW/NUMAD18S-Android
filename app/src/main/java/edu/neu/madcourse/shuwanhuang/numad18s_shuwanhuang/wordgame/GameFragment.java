@@ -4,6 +4,7 @@ import android.app.Fragment;
 import android.media.AudioManager;
 import android.media.SoundPool;
 import android.os.Bundle;
+import android.os.CountDownTimer;
 import android.os.Handler;
 import android.provider.ContactsContract;
 import android.util.Log;
@@ -11,13 +12,9 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.ImageButton;
 
-import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Random;
-import java.util.Set;
 import java.util.Stack;
 
 import edu.neu.madcourse.shuwanhuang.numad18s_shuwanhuang.DatabaseTable;
@@ -25,26 +22,29 @@ import edu.neu.madcourse.shuwanhuang.numad18s_shuwanhuang.R;
 
 public class GameFragment extends Fragment {
 
+    public enum Phase {
+        ONE, TWO,
+    }
+
     private static final String GAME = "Scroggle";
     private static final int N = 9;
-    private static final int largeIds[] = {R.id.large1, R.id.large2, R.id.large3,
+    private static final long MILLIS_PER_PHASE = 20000L;  // TODO
+    private static final long MILLIS_PER_TICK = 1000L;
+    private static final int[] LARGE_IDS = {R.id.large1, R.id.large2, R.id.large3,
             R.id.large4, R.id.large5, R.id.large6, R.id.large7, R.id.large8,
             R.id.large9,};
-    private static final int smallIds[] = {R.id.small1, R.id.small2, R.id.small3,
+    private static final int[] SMALL_IDS = {R.id.small1, R.id.small2, R.id.small3,
             R.id.small4, R.id.small5, R.id.small6, R.id.small7, R.id.small8,
             R.id.small9,};
 
-    public enum Phase {
-        ONE, TWO
-    }
-
     private String[] words;
     private Tile board;
-    private Phase phase;
     private Stack<LetterTile> current;
     private int score;
+    private CountDownTimer timer;
+    private Phase phase;
 
-    // TODO Sound
+    // TODO Sound & DB
     private int mSoundX, mSoundO, mSoundMiss, mSoundRewind;
     private SoundPool mSoundPool;
     private float mVolume = 1f;
@@ -53,15 +53,67 @@ public class GameFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        // TODO: What is this? Retain this fragment across configuration changes.
+        // Retain this fragment across configuration changes.
         setRetainInstance(true);
         initGame();
-        // TODO: Sound. What is this?
+        // TODO: Sound, maybe move to somewhere else?
         mSoundPool = new SoundPool(3, AudioManager.STREAM_MUSIC, 0);
 //        mSoundX = mSoundPool.load(getActivity(), R.raw.sergenious_movex, 1);
 //        mSoundO = mSoundPool.load(getActivity(), R.raw.sergenious_moveo, 1);
 //        mSoundMiss = mSoundPool.load(getActivity(), R.raw.erkanozan_miss, 1);
 //        mSoundRewind = mSoundPool.load(getActivity(), R.raw.joanne_rewind, 1);
+    }
+
+    public void initGame() {
+        Log.d(GAME, "init game");
+        initWords();
+        initBoard();
+        current = new Stack<>();
+        score = 0;
+        initTimer();
+        phase = Phase.ONE;
+        Log.d(GAME, "starting phase1");
+        timer.start();
+    }
+
+    // TODO ?
+    private void initWords() {
+        words = new String[N];
+        dbTable = new DatabaseTable(getActivity());
+        List<String> wordsLengthNine = dbTable.getWordsByLength(N);
+        Random random = new Random();
+        for (int i = 0; i < N; i++) {
+            words[i] = wordsLengthNine.get(random.nextInt(wordsLengthNine.size()));
+            // TODO: arrange
+        }
+    }
+
+    private void initBoard() {
+        Tile[] largeTiles = new Tile[N];
+        LetterTile[][] smallTiles = new LetterTile[N][N];
+        board = new Tile(-1, null, largeTiles);
+        for (int i = 0; i < N; i++) {
+            largeTiles[i] = new Tile(i, board, smallTiles[i]);
+            for (int j = 0; j < N; j++) {
+                smallTiles[i][j] = new LetterTile(j, largeTiles[i], words[i].charAt(j));
+            }
+        }
+    }
+
+    private void initTimer() {
+        timer = new CountDownTimer(MILLIS_PER_PHASE, MILLIS_PER_TICK) {
+            public void onTick(long millisUntilFinished) {
+                Log.d(GAME, "seconds remaining: " + millisUntilFinished / 1000);
+            }
+
+            public void onFinish() {
+                if (phase == Phase.ONE) {
+                    moveToPhase2();
+                } else {
+                    gameOver();
+                }
+            }
+        };
     }
 
     @Override
@@ -70,45 +122,22 @@ public class GameFragment extends Fragment {
         View rootView =
                 inflater.inflate(R.layout.large_board, container, false);
         initViews(rootView);
-        updateAllViews();
+        updateBoardView();
         return rootView;
-    }
-
-    public void initGame() {
-        Log.d(GAME, "init game");
-
-        initWords();
-
-        // Create all the tiles
-        Tile[] largeTiles = new Tile[N];
-        Tile[][] smallTiles = new LetterTile[N][N];
-        board = new Tile(this, -1, null, largeTiles);
-        for (int large = 0; large < N; large++) {
-            largeTiles[large] = new Tile(this, large, board, smallTiles[large]);
-            for (int small = 0; small < N; small++) {
-                smallTiles[large][small] =
-                        new LetterTile(this, small, largeTiles[large], words[large].charAt(small));
-            }
-        }
-
-        Log.d(GAME, "starting phase1");
-        phase = Phase.ONE;
-        current = new Stack<>();
-        score = 0;
     }
 
     private void initViews(View rootView) {
         Log.d(GAME, "init views");
         board.setView(rootView);
         Tile[] largeTiles = board.getSubTiles();
-        for (int large = 0; large < N; large++) {
-            View largeView = rootView.findViewById(largeIds[large]);
-            largeTiles[large].setView(largeView);
+        for (int i = 0; i < N; i++) {
+            View largeView = rootView.findViewById(LARGE_IDS[i]);
+            largeTiles[i].setView(largeView);
 
-            LetterTile[] smallTiles = (LetterTile[]) largeTiles[large].getSubTiles();
-            for (int small = 0; small < N; small++) {
-                Button smallView = largeView.findViewById(smallIds[small]);
-                final LetterTile letter = smallTiles[small];
+            Tile[] smallTiles = largeTiles[i].getSubTiles();
+            for (int j = 0; j < N; j++) {
+                Button smallView = largeView.findViewById(SMALL_IDS[j]);
+                final LetterTile letter = (LetterTile) smallTiles[j];
                 letter.setView(smallView);
                 smallView.setOnClickListener(new View.OnClickListener() {
                     @Override
@@ -120,6 +149,17 @@ public class GameFragment extends Fragment {
         }
     }
 
+    private void updateBoardView() {
+        Tile[] largeTiles = board.getSubTiles();
+        for (int large = 0; large < N; large++) {
+            Tile[] smallTiles = largeTiles[large].getSubTiles();
+            for (int small = 0; small < N; small++) {
+                ((LetterTile) smallTiles[small]).updateDrawableState();
+            }
+        }
+    }
+
+    // Called when the player click on the letter.
     private void onClickLetter(LetterTile letter) {
         if (!current.isEmpty() && current.peek() == letter) {
             Log.d(GAME, "unselect " + letter.getLetter());
@@ -129,7 +169,7 @@ public class GameFragment extends Fragment {
             letter.select();
             current.push(letter);
         }
-        updateAllViews();
+        updateBoardView();
     }
 
     private boolean isValidMove(LetterTile letter) {
@@ -145,43 +185,45 @@ public class GameFragment extends Fragment {
         }
     }
 
-    private void onSelectWord() {
+    /**
+     * Called when the play click on the "select word" button.
+     */
+    public void onSelectWord() {
         if (current.isEmpty()) return;
+
         if (phase == Phase.ONE) {
-            closeSubTiles(current.peek().getSuperTile());
+            closeAllSubTiles(current.peek().getSuperTile());
         } else {
-            closeSubTiles(board);
+            closeAllSubTiles(board);
         }
+        updateBoardView();
+
         String word = getSelectedWord();
-        Log.d(GAME, "select word: " + word);
-        updateScore(word);
         current.clear();
-        updateAllViews();
+        int delta = GameUtils.calculateScore(dbTable, word);
+        score += delta;
+        Log.d(GAME, "select word: " + word + " (" + delta + " points)");
+
         if (phase == Phase.ONE) {
             if (!board.isAvailable(phase)) {
-                onMoveToPhase2();
+                moveToPhase2();
             }
         } else {
-            onGameOver();
+            gameOver();
         }
-
     }
 
-    private void closeSubTiles(Tile superTile) {
-        for (Tile tile: superTile.getSubTiles()) {
-            if (tile instanceof LetterTile) {
-                LetterTile letter = (LetterTile) tile;
+    private void closeAllSubTiles(Tile tile) {
+        for (Tile subTile: tile.getSubTiles()) {
+            if (subTile instanceof LetterTile) {
+                LetterTile letter = (LetterTile) subTile;
                 if (letter.isUnselected()) {
                     letter.close();
                 }
             } else {
-                closeSubTiles(tile);
+                closeAllSubTiles(subTile);
             }
         }
-    }
-
-    private void updateScore(String word) {
-        score += GameUtils.calculateScore(word);
     }
 
     private String getSelectedWord() {
@@ -192,15 +234,12 @@ public class GameFragment extends Fragment {
         return sb.toString();
     }
 
-    private void onMoveToPhase2() {
-        // TODO: if timer1 is not off, turn it off
+    private void moveToPhase2() {
+        timer.cancel();
 
-        Log.d(GAME, "starting phase2");
-        phase = Phase.TWO;
-        for (LetterTile letter: current) {
-            letter.unselect();
+        while (!current.isEmpty()) {
+            current.pop().unselect();
         }
-        current.clear();
 
         for (Tile largeTile: board.getSubTiles()) {
             for (Tile smallTile: largeTile.getSubTiles()) {
@@ -212,15 +251,21 @@ public class GameFragment extends Fragment {
                 }
             }
         }
-        updateAllViews();
+        updateBoardView();
+
+        phase = Phase.TWO;
         if (!board.isAvailable(phase)) {
-            onGameOver();
+            gameOver();
+            return;
         }
+        Log.d(GAME, "starting phase2");
+        timer.start();
     }
 
-    private void onGameOver() {
+    private void gameOver() {
+        timer.cancel();
         Log.d(GAME, "game over");
-        //TODO: game over
+        // TODO: game over
     }
 
 //    public void restartGame() {
@@ -230,27 +275,6 @@ public class GameFragment extends Fragment {
 //        initViews(getView());
 //        updateAllViews();
 //    }
-
-    private void initWords() {
-        words = new String[N];
-        dbTable = new DatabaseTable(getActivity());
-        List<String> wordsLengthNine = dbTable.getWordsByLength(N);
-        Random random = new Random();
-        for (int i = 0; i < N; i++) {
-            words[i] = wordsLengthNine.get(random.nextInt(wordsLengthNine.size()));
-            // TODO: arrange
-        }
-    }
-
-    private void updateAllViews() {
-        Tile[] largeTiles = board.getSubTiles();
-        for (int large = 0; large < N; large++) {
-            Tile[] smallTiles = largeTiles[large].getSubTiles();
-            for (int small = 0; small < N; small++) {
-                ((LetterTile) smallTiles[small]).updateDrawableState();
-            }
-        }
-    }
 
     /** Restore the state of the game from the given string. */
 //    public void putState(String gameData) {

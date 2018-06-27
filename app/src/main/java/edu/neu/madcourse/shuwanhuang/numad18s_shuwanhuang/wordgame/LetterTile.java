@@ -5,32 +5,23 @@ import android.widget.Button;
 public class LetterTile extends Tile {
 
     private enum State {
-        UNSELECTED, SELECTED, CLOSED
+        UNSELECTED, SELECTED, CLOSED,
     }
-
     private static final int LEVEL_UNSELECTED = 0;
     private static final int LEVEL_SELECTED = 1;
     private static final int LEVEL_CLOSED = 2;
+
     private final char letter;
     private State state;
 
-    public LetterTile(GameFragment game, int index, Tile superTile, char letter) {
-        super(game, index, superTile, null);
+    public LetterTile(int index, Tile superTile, char letter) {
+        super(index, superTile, null);
         this.letter = letter;
         this.state = State.UNSELECTED;
     }
 
     public char getLetter() {
         return letter;
-    }
-
-    @Override
-    public boolean isAvailable(GameFragment.Phase phase) {
-        if (phase == GameFragment.Phase.ONE) {
-            return isUnselected();
-        } else {
-            return !isClosed();
-        }
     }
 
     public boolean isUnselected() {
@@ -57,6 +48,18 @@ public class LetterTile extends Tile {
         state = State.SELECTED;
     }
 
+    @Override
+    public boolean isAvailable(GameFragment.Phase phase) {
+        if (phase == GameFragment.Phase.ONE) {
+            return isUnselected();
+        } else {
+            return !isClosed();
+        }
+    }
+
+    /**
+     * Called to update the view of the button.
+     */
     public void updateDrawableState() {
         if (view == null) return;
         int level = getLevel();

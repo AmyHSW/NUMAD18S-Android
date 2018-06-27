@@ -15,16 +15,13 @@
     <string name="about_activity_title">About</string>
     <string name="acknowledgements_title">Acknowledgements</string>
     <string name="button_clear">Clear</string>
-    <string name="restart_label">Restart</string>
-    <string name="main_menu_label">Main Menu</string>
+    <string name="submit_label">Submit</string>
+    <string name="music_label">Music</string>
     <string name="long_app_name">Word Game: Scroggle</string>
     <string name="about_label">About</string>
     <string name="new_game_label">New Game</string>
     <string name="continue_label">Continue</string>
     <string name="ok_label">OK</string>
-    <string name="view_score">Score</string>
-    <string name="view_timer">Timer</string>
-
     <string name="about_text">\
 This game is played just like
 regular Tic Tac Toe with one difference: to win a tile
@@ -32,7 +29,12 @@ you have to win a smaller game of Tic Tac Toe inside that tile.\n\
 \n\
 A tie happens when there are no further moves.
 In the case of a tie in a small board, that will count as a win for
-both sides in the larger game.
+both sides in the larger game.</string>
+    <string name="acknowledgements_text">\
+Word Game Scrolling View Image (https://www.thesprucecrafts.com/
+        scrabble-vowels-two-three-letter-words-412393)".
+\n\
+Ultimate Tic Tac Toe (UTTT) example in textbook Hello, Android 4th Edition
 </string>
 
     <!-- TODO: Remove or change this placeholder text -->

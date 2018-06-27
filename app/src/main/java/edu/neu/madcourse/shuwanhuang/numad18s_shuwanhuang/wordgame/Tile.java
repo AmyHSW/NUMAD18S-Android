@@ -4,14 +4,12 @@ import android.view.View;
 
 public class Tile {
 
-    private final GameFragment game;
     private final int index;
     private final Tile superTile;
     private final Tile[] subTiles;
     protected View view;
 
-    public Tile(GameFragment game, int index, Tile superTile, Tile[] subTiles) {
-      this.game = game;
+    public Tile(int index, Tile superTile, Tile[] subTiles) {
       this.index = index;
       this.superTile = superTile;
       this.subTiles = subTiles;
@@ -37,6 +35,11 @@ public class Tile {
        this.view = view;
     }
 
+    /**
+     * Returns true if any part of this tile is open for player to click on.
+     * @param phase the current game phase
+     * @return true if any part of this tile is open for player to click on
+     */
     public boolean isAvailable(GameFragment.Phase phase) {
        for (Tile subTile: subTiles) {
            if (subTile.isAvailable(phase)) return true;
@@ -44,19 +47,14 @@ public class Tile {
        return false;
     }
 
+    /**
+     * Returns true if the two tiles are connected horizontally, vertically, or diagonally.
+     * @param that the other Tile
+     * @return true if the two tiles are connected horizontally, vertically, or diagonally
+     */
     public boolean isConnectedTo(Tile that) {
        if (this == that) return false;
        if (this.superTile != that.superTile) return false;
        return GameUtils.isConnected(this.index, that.index);
     }
-
-//
-//   public void animate() {
-//      Animator anim = AnimatorInflater.loadAnimator(mGame.getActivity(),
-//            R.animator.tictactoe);
-//      if (getView() != null) {
-//         anim.setTarget(getView());
-//         anim.start();
-//      }
-//   }
 }

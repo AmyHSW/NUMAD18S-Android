@@ -31,6 +31,8 @@ public class AcknowledgementsActivity extends AppCompatActivity {
             + "(https://stackoverflow.com/questions/16354154/copy-sqlite-database-from-assets-folder)");
         list.add("ADG: Storing and Searching for Data "
             + "(https://developer.android.com/training/search/search)");
+        list.add("Word Game Scrolling View Image "
+            + "(https://www.thesprucecrafts.com/scrabble-vowels-two-three-letter-words-412393)");
         ArrayAdapter<String> adapter = new ArrayAdapter<>(
                 this,
                 R.layout.acknowledgements_list_item,

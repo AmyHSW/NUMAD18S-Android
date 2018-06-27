@@ -72,4 +72,15 @@ public class MainActivity extends AppCompatActivity {
         Intent intent = new Intent(this, DictionaryActivity.class);
         startActivity(intent);
     }
+
+    /**
+     * Called when the user taps the Word Game button.
+     * @param view the View object that was clicked
+     */
+    public void onClickWordGame(View view) {
+        Intent intent = new Intent(
+                this,
+                edu.neu.madcourse.shuwanhuang.numad18s_shuwanhuang.wordgame.MainActivity.class);
+        startActivity(intent);
+    }
 }

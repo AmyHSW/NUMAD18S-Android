@@ -41,7 +41,7 @@ public class DatabaseTable {
         return getWordMatches(word.toLowerCase(), null) != null;
     }
 
-    public Cursor getWordMatches(String query, String[] columns) {
+    private Cursor getWordMatches(String query, String[] columns) {
         String selection = COL_WORD + "=?";
         String[] selectionArgs = new String[] {query};
 
@@ -64,11 +64,31 @@ public class DatabaseTable {
         return cursor;
     }
 
+    private Cursor queryByLength(int length) {
+        String sql = "SELECT " + COL_WORD + " FROM " + FTS_VIRTUAL_TABLE
+                + " WHERE LENGTH(" + "WORD" +")=" + length;
+        return mDatabaseOpenHelper.getReadableDatabase().rawQuery(sql, null);
+    }
+
+    public List<String> getWordsByLength(int length) {
+        List<String> words = new ArrayList<>();
+        Cursor cursor = queryByLength(length);
+        if (cursor.moveToFirst()) {
+            do {
+                String word = cursor.getString(cursor.getColumnIndex(COL_WORD));
+                words.add(word);
+            } while(cursor.moveToNext());
+        }
+        cursor.close();
+        return words;
+    }
+
     private static class DatabaseOpenHelper extends SQLiteOpenHelper {
 
         private static final String DB_PATH = "/data/data/" + BuildConfig.APPLICATION_ID
                 + "/databases/";
         private static final String DB_NAME = "DICTIONARY.db";
+
         private final Context mHelperContext;
         private SQLiteDatabase mDatabase;
 

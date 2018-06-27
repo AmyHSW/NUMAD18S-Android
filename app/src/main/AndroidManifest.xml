@@ -20,14 +20,15 @@
         </activity>
         <activity
             android:name=".AboutActivity"
-            android:label="@string/about_activity_title"></activity>
+            android:label="@string/about_activity_title" />
         <activity
             android:name=".DictionaryActivity"
-            android:label="@string/dictionary_activity_title"></activity>
-        <activity android:name=".AcknowledgementsActivity"
-            android:label="@string/acknowledgements_title">
-
-        </activity>
+            android:label="@string/dictionary_activity_title" />
+        <activity
+            android:name=".AcknowledgementsActivity"
+            android:label="@string/acknowledgements_title" />
+        <activity android:name=".wordgame.GameActivity" />
+        <activity android:name=".wordgame.MainActivity"></activity>
     </application>
 
 </manifest>

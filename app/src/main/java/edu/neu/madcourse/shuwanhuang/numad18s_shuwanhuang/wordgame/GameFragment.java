@@ -5,20 +5,18 @@ import android.media.AudioManager;
 import android.media.SoundPool;
 import android.os.Bundle;
 import android.os.CountDownTimer;
-import android.os.Handler;
-import android.provider.ContactsContract;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 
+import edu.neu.madcourse.shuwanhuang.numad18s_shuwanhuang.DatabaseTable;
+import edu.neu.madcourse.shuwanhuang.numad18s_shuwanhuang.R;
+
 import java.util.List;
 import java.util.Random;
 import java.util.Stack;
-
-import edu.neu.madcourse.shuwanhuang.numad18s_shuwanhuang.DatabaseTable;
-import edu.neu.madcourse.shuwanhuang.numad18s_shuwanhuang.R;
 
 public class GameFragment extends Fragment {
 
@@ -26,9 +24,11 @@ public class GameFragment extends Fragment {
         ONE, TWO,
     }
 
-    private static final String GAME = "Scroggle";
-    private static final int N = 9;
-    private static final long MILLIS_PER_PHASE = 20000L;  // TODO
+    public static final String GAME = "Scroggle";
+    public static final int N = 9;
+    // TODO: time format
+    public static final int SECONDS_PER_PHASE = 30; // TODO: change to 90
+    private static final long MILLIS_PER_PHASE = SECONDS_PER_PHASE * 1000;
     private static final long MILLIS_PER_TICK = 1000L;
     private static final int[] LARGE_IDS = {R.id.large1, R.id.large2, R.id.large3,
             R.id.large4, R.id.large5, R.id.large6, R.id.large7, R.id.large8,
@@ -37,6 +37,7 @@ public class GameFragment extends Fragment {
             R.id.small4, R.id.small5, R.id.small6, R.id.small7, R.id.small8,
             R.id.small9,};
 
+    private GameActivity activity;
     private String[] words;
     private Tile board;
     private Stack<LetterTile> current;
@@ -66,6 +67,7 @@ public class GameFragment extends Fragment {
 
     public void initGame() {
         Log.d(GAME, "init game");
+        activity = (GameActivity) getActivity();
         initWords();
         initBoard();
         current = new Stack<>();
@@ -79,7 +81,7 @@ public class GameFragment extends Fragment {
     // TODO ?
     private void initWords() {
         words = new String[N];
-        dbTable = new DatabaseTable(getActivity());
+        dbTable = new DatabaseTable(activity);
         List<String> wordsLengthNine = dbTable.getWordsByLength(N);
         Random random = new Random();
         for (int i = 0; i < N; i++) {
@@ -103,10 +105,11 @@ public class GameFragment extends Fragment {
     private void initTimer() {
         timer = new CountDownTimer(MILLIS_PER_PHASE, MILLIS_PER_TICK) {
             public void onTick(long millisUntilFinished) {
-                Log.d(GAME, "seconds remaining: " + millisUntilFinished / 1000);
+                updateTime(millisUntilFinished);
             }
 
             public void onFinish() {
+                updateTime(0L);
                 if (phase == Phase.ONE) {
                     moveToPhase2();
                 } else {
@@ -159,6 +162,12 @@ public class GameFragment extends Fragment {
         }
     }
 
+    @Override
+    public void onPause() {
+        super.onPause();
+        timer.cancel();
+    }
+
     // Called when the player click on the letter.
     private void onClickLetter(LetterTile letter) {
         if (!current.isEmpty() && current.peek() == letter) {
@@ -186,7 +195,7 @@ public class GameFragment extends Fragment {
     }
 
     /**
-     * Called when the play click on the "select word" button.
+     * Called when the play click on the select button.
      */
     public void onSelectWord() {
         if (current.isEmpty()) return;
@@ -201,7 +210,10 @@ public class GameFragment extends Fragment {
         String word = getSelectedWord();
         current.clear();
         int delta = GameUtils.calculateScore(dbTable, word);
+        // TODO
+        // if score>0, beep
         score += delta;
+        updateScore(score);
         Log.d(GAME, "select word: " + word + " (" + delta + " points)");
 
         if (phase == Phase.ONE) {
@@ -232,6 +244,14 @@ public class GameFragment extends Fragment {
             sb.append(tile.getLetter());
         }
         return sb.toString();
+    }
+
+    private void updateScore(int score) {
+        activity.updateScore(score);
+    }
+
+    private void updateTime(long millisUntilFinished) {
+        activity.updateTime((int) (millisUntilFinished / 1000));
     }
 
     private void moveToPhase2() {
@@ -265,7 +285,7 @@ public class GameFragment extends Fragment {
     private void gameOver() {
         timer.cancel();
         Log.d(GAME, "game over");
-        // TODO: game over
+        ((GameActivity) getActivity()).showScore(score);
     }
 
 //    public void restartGame() {

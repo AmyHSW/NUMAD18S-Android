@@ -8,6 +8,9 @@
  ***/
 package edu.neu.madcourse.shuwanhuang.numad18s_shuwanhuang.wordgame;
 
+import android.app.AlertDialog;
+import android.app.Dialog;
+import android.content.DialogInterface;
 import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.os.Handler;
@@ -25,6 +28,7 @@ public class GameActivity extends FragmentActivity {
     private int musicLevel = MUSIC_ON;
     private Handler mHandler = new Handler();
     private GameFragment mGameFragment;
+    private InfoFragment mInfoFragment;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -32,6 +36,8 @@ public class GameActivity extends FragmentActivity {
         setContentView(R.layout.activity_game);
         mGameFragment = (GameFragment) getFragmentManager()
                 .findFragmentById(R.id.fragment_game);
+        mInfoFragment = (InfoFragment) getFragmentManager()
+                .findFragmentById(R.id.fragment_info);
 //        boolean restore = getIntent().getBooleanExtra(KEY_RESTORE, false);
 //        if (restore) {
 //            String gameData = getPreferences(MODE_PRIVATE)
@@ -74,6 +80,29 @@ public class GameActivity extends FragmentActivity {
     public void onSelectWord() {
         mGameFragment.onSelectWord();
     }
+
+    public void updateTime(int seconds) {
+        mInfoFragment.updateTime(seconds);
+    }
+
+    public void updateScore(int score) {
+        mInfoFragment.updateScore(score);
+    }
+
+    public void showScore(int score) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setMessage(getString(R.string.show_score, score));
+        builder.setCancelable(false);
+        builder.setPositiveButton(R.string.ok_label, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                finish();
+            }
+        });
+        final Dialog dialog = builder.create();
+        dialog.show();
+    }
+
 //
 //    public void reportWinner(final Tile.Owner winner) {
 //        AlertDialog.Builder builder = new AlertDialog.Builder(this);

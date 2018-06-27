@@ -21,6 +21,9 @@
     <string name="new_game_label">New Game</string>
     <string name="continue_label">Continue</string>
     <string name="ok_label">OK</string>
+    <string name="score_label">Score: %1$d</string>
+    <string name="time_label">Time: %1$d:%2$d</string>
+    <string name="show_score">Your score is %1$d. Thanks for playing!</string>
     <string name="about_text">\
 This game is played just like
 regular Tic Tac Toe with one difference: to win a tile

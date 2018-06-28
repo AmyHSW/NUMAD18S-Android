@@ -11,6 +11,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.Toast;
 
 import edu.neu.madcourse.shuwanhuang.numad18s_shuwanhuang.DatabaseTable;
 import edu.neu.madcourse.shuwanhuang.numad18s_shuwanhuang.R;
@@ -413,6 +414,8 @@ public class GameFragment extends Fragment {
             gameOver();
             return;
         }
+        Toast.makeText(getActivity(), R.string.toast_move_to_phase_two,
+                Toast.LENGTH_LONG).show();
         Log.d(GAME_NAME, "starting phase2");
         startTimer(MILLIS_PER_PHASE);
     }
@@ -423,28 +426,4 @@ public class GameFragment extends Fragment {
         Log.d(GAME_NAME, "game over");
         ((GameActivity) getActivity()).showScore(score);
     }
-
-//    public void restartGame() {
-//        mSoundPool.play(mSoundRewind, mVolume, mVolume, 1, 0, 1f);
-//        // ...
-//        initGame();
-//        initViews(getView());
-//        updateAllViews();
-//    }
-
-    /** Restore the state of the game from the given string. */
-//    public void putState(String gameData) {
-//        String[] fields = gameData.split(",");
-//        int index = 0;
-//        mLastLarge = Integer.parseInt(fields[index++]);
-//        mLastSmall = Integer.parseInt(fields[index++]);
-//        for (int large = 0; large < 9; large++) {
-//            for (int small = 0; small < 9; small++) {
-//                Tile.Owner owner = Tile.Owner.valueOf(fields[index++]);
-//                mSmallTiles[large][small].setOwner(owner);
-//            }
-//        }
-//        setAvailableFromLastMove(mLastSmall);
-//        updateAllViews();
-//    }
 }

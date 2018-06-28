@@ -15,6 +15,8 @@ import android.widget.Button;
 import edu.neu.madcourse.shuwanhuang.numad18s_shuwanhuang.DatabaseTable;
 import edu.neu.madcourse.shuwanhuang.numad18s_shuwanhuang.R;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
 import java.util.Stack;
@@ -26,9 +28,10 @@ public class GameFragment extends Fragment {
     }
 
     public static final String GAME_NAME = "Scroggle";
+    public static final int SIZE = 3;
     public static final int N = 9;
     public static final int STARTING_SCORE = 0;
-    public static final int SECONDS_PER_PHASE = 90; // TODO: change to 90
+    public static final int SECONDS_PER_PHASE = 90;
 
     private static final long MILLIS_PER_PHASE = SECONDS_PER_PHASE * 1000;
     private static final long MILLIS_PER_TICK = 1000L;
@@ -41,6 +44,8 @@ public class GameFragment extends Fragment {
 
     private GameActivity activity;
     private CountDownTimer timer;
+    private Random random;
+    private List<int[]> validArrangements;
 
     // Below are fields relevant to game state
     private String[] words;
@@ -50,7 +55,6 @@ public class GameFragment extends Fragment {
     private Phase phase;
     private Stack<LetterTile> current;
 
-    // TODO Sound & DB
     private int mSoundClick, mSoundEarnPoints, mSoundLosePoints;
     private SoundPool mSoundPool;
     private float mVolume = 1f;
@@ -65,7 +69,6 @@ public class GameFragment extends Fragment {
         initGame();
         Log.d(GAME_NAME, "finish onCreate GameFragment");
 
-        // TODO: Sound, maybe move to somewhere else?
         mSoundPool = new SoundPool(3, AudioManager.STREAM_MUSIC, 0);
         mSoundClick = mSoundPool.load(getActivity(), R.raw.sergenious_movex, 1);
         mSoundEarnPoints = mSoundPool.load(getActivity(), R.raw.oldedgar_winner, 1);
@@ -75,27 +78,70 @@ public class GameFragment extends Fragment {
     public void initGame() {
         Log.d(GAME_NAME, "init game");
         activity = (GameActivity) getActivity();
+        random = new Random();
+        validArrangements = getAllValidArrangement(new ArrayList<int[]>());
         initWords();
         initBoard();
         score = 0;
         time = MILLIS_PER_PHASE;
-        initTimer();
+        startTimer(MILLIS_PER_PHASE);
         phase = Phase.ONE;
         Log.d(GAME_NAME, "starting phase1");
         current = new Stack<>();
-        timer.start();
     }
 
-    // TODO ?
     private void initWords() {
         words = new String[N];
         dbTable = new DatabaseTable(activity);
         List<String> wordsLengthNine = dbTable.getWordsByLength(N);
-        Random random = new Random();
         for (int i = 0; i < N; i++) {
             words[i] = wordsLengthNine.get(random.nextInt(wordsLengthNine.size()));
-            // TODO: arrange
+            Log.v("GameFragment", words[i]);
         }
+    }
+
+    private int[] getRandomArrangement() {
+        return validArrangements.get(random.nextInt(validArrangements.size()));
+    }
+
+    private List<int[]> getAllValidArrangement(List<int[]> result) {
+        int[][] board = new int[SIZE][SIZE];
+        int[] nums = new int[N];
+        for (int i = 0; i < N; i++) {
+            nums[i] = i;
+        }
+        for (int[] row : board) {
+            Arrays.fill(row, -1);
+        }
+        int x = random.nextInt(SIZE);
+        int y = random.nextInt(SIZE);
+        dfs(nums, x, y, 0, board, result);
+        return result;
+    }
+
+    private void dfs(int[] nums, int x, int y, int index, int[][] board,
+                     List<int[]> result) {
+        if (x < 0 || x >= SIZE || y < 0 || y >= SIZE || board[x][y] != -1) {
+            return;
+        }
+        board[x][y] = nums[index];
+        if (index == nums.length - 1) {
+            int[] newBoard = new int[SIZE * SIZE];
+            for (int i = 0; i < SIZE; i++) {
+                System.arraycopy(board[i], 0, newBoard, SIZE * i, SIZE);
+            }
+            result.add(newBoard);
+            board[x][y] = -1;
+            return;
+        }
+        for (int i = -1; i <= 1; i++) {
+            for (int j = -1; j <= 1; j++) {
+                if (!(i == 0 && j == 0)) {
+                    dfs(nums, x + i, y + j, index + 1, board, result);
+                }
+            }
+        }
+        board[x][y] = -1;
     }
 
     private void initBoard() {
@@ -104,14 +150,17 @@ public class GameFragment extends Fragment {
         board = new Tile(-1, null, largeTiles);
         for (int i = 0; i < N; i++) {
             largeTiles[i] = new Tile(i, board, smallTiles[i]);
+            int[] arrangement = getRandomArrangement();
             for (int j = 0; j < N; j++) {
-                smallTiles[i][j] = new LetterTile(j, largeTiles[i], words[i].charAt(j));
+                smallTiles[i][j] =
+                        new LetterTile(j, largeTiles[i], words[i].charAt(arrangement[j]));
             }
         }
     }
 
-    private void initTimer() {
-        timer = new CountDownTimer(MILLIS_PER_PHASE, MILLIS_PER_TICK) {
+    private void startTimer(long total) {
+        if (timer != null) timer.cancel();
+        timer = new CountDownTimer(total, MILLIS_PER_TICK) {
             public void onTick(long millisUntilFinished) {
                 updateTime(millisUntilFinished);
             }
@@ -125,6 +174,7 @@ public class GameFragment extends Fragment {
                 }
             }
         };
+        timer.start();
     }
 
     @Override
@@ -215,7 +265,32 @@ public class GameFragment extends Fragment {
      * @param stateStr serialized game state
      */
     public void restoreState(String stateStr) {
-        // TODO
+        Log.d(GAME_NAME, "restore game data: " + stateStr);
+        String[] state = stateStr.split(",");
+        int index = 0;
+        words = new String[N];
+        for (int i = 0; i < words.length; i++) {
+            words[i] = state[index++];
+        }
+        for (int i = 0; i < N; i++) {
+            Tile largeTile = board.getSubTile(i);
+            for (int j = 0; j < N; j++) {
+                LetterTile letter = (LetterTile) largeTile.getSubTile(j);
+                letter.setLetter(words[i].charAt(j));
+                letter.setState(state[index++]);
+            }
+        }
+        updateBoardView();
+        updateScore(Integer.parseInt(state[index++]));
+        updateTime(Long.parseLong(state[index++]));
+        startTimer(time);
+        phase = Phase.valueOf(state[index++]);
+        current = new Stack<>();
+        while (index + 1 < state.length) {
+            int i = Integer.parseInt(state[index++]);
+            int j = Integer.parseInt(state[index++]);
+            current.push((LetterTile) board.getSubTile(i).getSubTile(j));
+        }
     }
 
     // Called when the player click on the letter.
@@ -251,26 +326,28 @@ public class GameFragment extends Fragment {
     public void onSelectWord() {
         if (current.isEmpty()) return;
 
-        if (phase == Phase.ONE) {
-            closeAllSubTiles(current.peek().getSuperTile());
-        } else {
-            closeAllSubTiles(board);
-        }
-        updateBoardView();
-
         String word = getSelectedWord();
-        current.clear();
         int delta = GameUtils.calculateScore(dbTable, word);
         if (delta > 0) {
             mSoundPool.play(mSoundEarnPoints, mVolume, mVolume, 1, 0, 1f);
         } else {
             mSoundPool.play(mSoundLosePoints, mVolume, mVolume, 1, 0, 1f);
         }
-        // TODO if delta>0, beep
-        // TODO if delta<0, remove all letters
-        score += delta;
-        updateScore(score);
+        updateScore(score + delta);
         Log.d(GAME_NAME, "select word: " + word + " (" + delta + " points)");
+
+        if (phase == Phase.ONE) {
+            closeAllSubTiles(current.peek().getSuperTile());
+            if (delta < 0) {
+                for (LetterTile letter: current) {
+                    letter.close();
+                }
+            }
+        } else {
+            closeAllSubTiles(board);
+        }
+        updateBoardView();
+        current.clear();
 
         if (phase == Phase.ONE) {
             if (!board.isAvailable(phase)) {
@@ -303,6 +380,7 @@ public class GameFragment extends Fragment {
     }
 
     private void updateScore(int score) {
+        this.score = score;
         activity.updateScore(score);
     }
 
@@ -336,7 +414,7 @@ public class GameFragment extends Fragment {
             return;
         }
         Log.d(GAME_NAME, "starting phase2");
-        timer.start();
+        startTimer(MILLIS_PER_PHASE);
     }
 
     private void gameOver() {

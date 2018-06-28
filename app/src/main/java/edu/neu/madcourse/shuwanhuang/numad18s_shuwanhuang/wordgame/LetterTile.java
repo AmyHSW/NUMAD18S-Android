@@ -11,7 +11,7 @@ public class LetterTile extends Tile {
     private static final int LEVEL_SELECTED = 1;
     private static final int LEVEL_CLOSED = 2;
 
-    private final char letter;
+    private char letter;
     private State state;
 
     LetterTile(int index, Tile superTile, char letter) {
@@ -22,6 +22,10 @@ public class LetterTile extends Tile {
 
     public char getLetter() {
         return letter;
+    }
+
+    public void setLetter(char letter) {
+        this.letter = letter;
     }
 
     public boolean isUnselected() {

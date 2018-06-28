@@ -33,9 +33,10 @@
         Boggle board. Once the word is selected, the remaining letters in that grid disappear.
         \n\
         The game enters phase 2 after 1.5 min, or after you have done all 9 Boggle boards,
-        depends on which one comes first. In phase 2, you will pick one letter from each quadrant.
-        You can revisit grids, but not back to back. The score you earn depends on the length
-        of the word you build and the letters the word contains.
+        depends on which one comes first. In phase 2, which also lasts for 1.5 min, you
+        will pick one letter from each quadrant. You can revisit grids, but not back to
+        back. The score you earn depends on the length of the word you build and the letters
+        the word contains.
         \n\
         Enjoy!!!
     </string>

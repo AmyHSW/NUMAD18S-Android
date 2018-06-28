@@ -13,14 +13,10 @@ import edu.neu.madcourse.shuwanhuang.numad18s_shuwanhuang.R;
 
 public class GameActivity extends FragmentActivity {
 
-    private static final int MUSIC_ON = 0;
-    private static final int MUSIC_OFF = 1;
-    public static final String COL_WORD = "WORD";
     public static final String PREF_NAME = "GameActivity.GameData";
     public static final String PREF_RESTORE = "pref_restore";
     public static final String KEY_RESTORE = "key_restore";
     private MediaPlayer mMediaPlayer;
-    private int musicLevel = MUSIC_ON;
     private Handler mHandler = new Handler();
     private GameFragment mGameFragment;
     private InfoFragment infoFragment;
@@ -39,7 +35,6 @@ public class GameActivity extends FragmentActivity {
             String gameData = getSharedPreferences(GameActivity.PREF_NAME, MODE_PRIVATE)
                     .getString(PREF_RESTORE, null);
             if (gameData != null) {
-                Log.d(GameFragment.GAME_NAME, "restore game data");
                 mGameFragment.restoreState(gameData);
             }
         }
@@ -49,7 +44,7 @@ public class GameActivity extends FragmentActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        mMediaPlayer = MediaPlayer.create(this, R.raw.solar_eclipse);
+        mMediaPlayer = MediaPlayer.create(this, R.raw.the_midnight_ninja);
         mMediaPlayer.setVolume(0.5f, 0.5f);
         mMediaPlayer.setLooping(true);
         mMediaPlayer.start();

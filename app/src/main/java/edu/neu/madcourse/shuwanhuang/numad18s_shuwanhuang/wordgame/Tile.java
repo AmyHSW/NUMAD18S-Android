@@ -27,6 +27,10 @@ public class Tile {
       return subTiles;
     }
 
+    public Tile getSubTile(int index) {
+        return subTiles[index];
+    }
+
     public View getView() {
        return view;
     }

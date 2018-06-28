@@ -104,3 +104,4 @@ public class GameActivity extends FragmentActivity {
         final Dialog dialog = builder.create();
         dialog.show();
     }
+}

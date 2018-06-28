@@ -28,7 +28,7 @@ public class GameFragment extends Fragment {
     public static final String GAME_NAME = "Scroggle";
     public static final int N = 9;
     public static final int STARTING_SCORE = 0;
-    public static final int SECONDS_PER_PHASE = 30; // TODO: change to 90
+    public static final int SECONDS_PER_PHASE = 90; // TODO: change to 90
 
     private static final long MILLIS_PER_PHASE = SECONDS_PER_PHASE * 1000;
     private static final long MILLIS_PER_TICK = 1000L;
@@ -40,15 +40,18 @@ public class GameFragment extends Fragment {
             R.id.small9,};
 
     private GameActivity activity;
+    private CountDownTimer timer;
+
+    // Below are fields relevant to game state
     private String[] words;
     private Tile board;
-    private Stack<LetterTile> current;
     private int score;
-    private CountDownTimer timer;
+    private long time;
     private Phase phase;
+    private Stack<LetterTile> current;
 
     // TODO Sound & DB
-    private int mSoundX, mSoundO, mSoundMiss, mSoundRewind;
+    private int mSoundClick, mSoundEarnPoints, mSoundLosePoints;
     private SoundPool mSoundPool;
     private float mVolume = 1f;
     private DatabaseTable dbTable;
@@ -64,10 +67,9 @@ public class GameFragment extends Fragment {
 
         // TODO: Sound, maybe move to somewhere else?
         mSoundPool = new SoundPool(3, AudioManager.STREAM_MUSIC, 0);
-//        mSoundX = mSoundPool.load(getActivity(), R.raw.sergenious_movex, 1);
-//        mSoundO = mSoundPool.load(getActivity(), R.raw.sergenious_moveo, 1);
-//        mSoundMiss = mSoundPool.load(getActivity(), R.raw.erkanozan_miss, 1);
-//        mSoundRewind = mSoundPool.load(getActivity(), R.raw.joanne_rewind, 1);
+        mSoundClick = mSoundPool.load(getActivity(), R.raw.sergenious_movex, 1);
+        mSoundEarnPoints = mSoundPool.load(getActivity(), R.raw.oldedgar_winner, 1);
+        mSoundLosePoints = mSoundPool.load(getActivity(), R.raw.erkanozan_miss, 1);
     }
 
     public void initGame() {
@@ -75,11 +77,12 @@ public class GameFragment extends Fragment {
         activity = (GameActivity) getActivity();
         initWords();
         initBoard();
-        current = new Stack<>();
         score = 0;
+        time = MILLIS_PER_PHASE;
         initTimer();
         phase = Phase.ONE;
         Log.d(GAME_NAME, "starting phase1");
+        current = new Stack<>();
         timer.start();
     }
 
@@ -177,16 +180,34 @@ public class GameFragment extends Fragment {
             activity.getSharedPreferences(GameActivity.PREF_NAME, Context.MODE_PRIVATE).edit()
                     .remove(GameActivity.PREF_RESTORE).commit();
         } else {
-            Log.d(GAME_NAME, "save game data");
+            String gameData = getState();
+            Log.d(GAME_NAME, "save game data: " + gameData);
             activity.getSharedPreferences(GameActivity.PREF_NAME, Context.MODE_PRIVATE).edit()
-                    .putString(GameActivity.PREF_RESTORE, getState()).commit();
+                    .putString(GameActivity.PREF_RESTORE, gameData).commit();
         }
         activity.finish();
     }
 
     // Serialize the game state into a string
     private String getState() {
-        return "dummy"; // TODO
+        StringBuilder sb = new StringBuilder();
+        for (String word: words) {
+            sb.append(word).append(",");
+        }
+        for (Tile largeTile: board.getSubTiles()) {
+            for (Tile smallTile: largeTile.getSubTiles()) {
+                LetterTile letter = (LetterTile) smallTile;
+                sb.append(letter).append(",");
+            }
+        }
+        sb.append(score).append(",");
+        sb.append(time).append(",");
+        sb.append(phase).append(",");
+        for (LetterTile letter: current) {
+            sb.append(letter.getSuperTile().getIndex()).append(",");
+            sb.append(letter.getIndex()).append(",");
+        }
+        return sb.toString();
     }
 
     /**
@@ -194,7 +215,7 @@ public class GameFragment extends Fragment {
      * @param stateStr serialized game state
      */
     public void restoreState(String stateStr) {
-        
+        // TODO
     }
 
     // Called when the player click on the letter.
@@ -203,6 +224,7 @@ public class GameFragment extends Fragment {
             Log.d(GAME_NAME, "unselect " + letter.getLetter());
             current.pop().unselect();
         } else if (isValidMove(letter)) {
+            mSoundPool.play(mSoundClick, mVolume, mVolume, 1, 0, 1f);
             Log.d(GAME_NAME, "select " + letter.getLetter());
             letter.select();
             current.push(letter);
@@ -239,7 +261,13 @@ public class GameFragment extends Fragment {
         String word = getSelectedWord();
         current.clear();
         int delta = GameUtils.calculateScore(dbTable, word);
+        if (delta > 0) {
+            mSoundPool.play(mSoundEarnPoints, mVolume, mVolume, 1, 0, 1f);
+        } else {
+            mSoundPool.play(mSoundLosePoints, mVolume, mVolume, 1, 0, 1f);
+        }
         // TODO if delta>0, beep
+        // TODO if delta<0, remove all letters
         score += delta;
         updateScore(score);
         Log.d(GAME_NAME, "select word: " + word + " (" + delta + " points)");
@@ -279,7 +307,8 @@ public class GameFragment extends Fragment {
     }
 
     private void updateTime(long millisUntilFinished) {
-        activity.updateTime((int) (millisUntilFinished / 1000));
+        time = millisUntilFinished;
+        activity.updateTime((int) (time / 1000));
     }
 
     private void moveToPhase2() {

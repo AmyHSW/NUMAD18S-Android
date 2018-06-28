@@ -25,19 +25,26 @@
     <string name="time_label">Time: %1$02d:%2$02d</string>
     <string name="show_score">Your score is %1$d. Thanks for playing!</string>
     <string name="about_text">\
-This game is played just like
-regular Tic Tac Toe with one difference: to win a tile
-you have to win a smaller game of Tic Tac Toe inside that tile.\n\
-\n\
-A tie happens when there are no further moves.
-In the case of a tie in a small board, that will count as a win for
-both sides in the larger game.</string>
+        Scroggle stands for Scrambled Boggle. At the start of the game, a 9x9 grid with 9x9
+        letters in the grid is displayed. Each smaller grid has been populated with
+        9-letter words using Boggle rules (up/down/diagonal letters are connected).
+        \n\
+        In phase 1, which lasts for 1.5 min, you need to find the longest word in each
+        Boggle board. Once the word is selected, the remaining letters in that grid disappear.
+        \n\
+        The game enters phase 2 after 1.5 min, or after you have done all 9 Boggle boards,
+        depends on which one comes first. In phase 2, you will pick one letter from each quadrant.
+        You can revisit grids, but not back to back. The score you earn depends on the length
+        of the word you build and the letters the word contains.
+        \n\
+        Enjoy!!!
+    </string>
     <string name="acknowledgements_text">\
-Word Game Scrolling View Image (https://www.thesprucecrafts.com/
+        Word Game Scrolling View Image (https://www.thesprucecrafts.com/
         scrabble-vowels-two-three-letter-words-412393)".
-\n\
-Ultimate Tic Tac Toe (UTTT) example in textbook Hello, Android 4th Edition
-</string>
+        \n\
+        Ultimate Tic Tac Toe (UTTT) example in textbook Hello, Android 4th Edition
+    </string>
 
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>

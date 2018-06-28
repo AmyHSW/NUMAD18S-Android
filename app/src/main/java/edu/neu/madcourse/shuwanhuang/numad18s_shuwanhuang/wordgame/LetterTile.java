@@ -49,6 +49,15 @@ public class LetterTile extends Tile {
     }
 
     @Override
+    public String toString() {
+        return state.toString();
+    }
+
+    public void setState(String str) {
+        state = State.valueOf(str);
+    }
+
+    @Override
     public boolean isAvailable(GameFragment.Phase phase) {
         if (phase == GameFragment.Phase.ONE) {
             return isUnselected();
@@ -79,7 +88,7 @@ public class LetterTile extends Tile {
             case UNSELECTED: return LEVEL_UNSELECTED;
             case SELECTED: return LEVEL_SELECTED;
             case CLOSED: return LEVEL_CLOSED;
-            default: return LEVEL_UNSELECTED;
+            default: throw new IllegalStateException();
         }
     }
 }

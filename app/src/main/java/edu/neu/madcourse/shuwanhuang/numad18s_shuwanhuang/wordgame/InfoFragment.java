@@ -1,7 +1,8 @@
 package edu.neu.madcourse.shuwanhuang.numad18s_shuwanhuang.wordgame;
 
-import android.os.Bundle;
 import android.app.Fragment;
+import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -21,16 +22,23 @@ public class InfoFragment extends Fragment {
         timeInfo = rootView.findViewById(R.id.time_info);
         scoreInfo = rootView.findViewById(R.id.score_info);
         updateTime(GameFragment.SECONDS_PER_PHASE);
-        updateScore(0);
+        updateScore(GameFragment.STARTING_SCORE);
         return rootView;
     }
 
     public void updateTime(int seconds) {
+        if (timeInfo == null) {
+            Log.w(GameFragment.GAME_NAME, "timeInfo not set yet");
+            return;
+        }
         timeInfo.setText(getString(R.string.time_label, seconds / 60, seconds % 60));
     }
 
     public void updateScore(int score) {
+        if (scoreInfo == null) {
+            Log.w(GameFragment.GAME_NAME, "scoreInfo not set yet");
+            return;
+        }
         scoreInfo.setText(getString(R.string.score_label, score));
     }
-
 }

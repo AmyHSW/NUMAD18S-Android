@@ -26,7 +26,7 @@
         android:textSize="@dimen/menu_text_size"/>
 
     <Button
-        android:id="@+id/continue_button"
+        android:id="@+id/button_continue"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_margin="@dimen/menu_button_margin"
@@ -34,7 +34,7 @@
         android:text="@string/continue_label"/>
 
     <Button
-        android:id="@+id/new_button"
+        android:id="@+id/button_new"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
@@ -43,7 +43,7 @@
         android:text="@string/new_game_label"/>
 
     <Button
-        android:id="@+id/about_button"
+        android:id="@+id/button_about"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
@@ -52,7 +52,7 @@
         android:text="@string/about_label"/>
 
     <Button
-        android:id="@+id/acknowledge_button"
+        android:id="@+id/button_acknowledge"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="center"

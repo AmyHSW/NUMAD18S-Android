@@ -11,17 +11,32 @@ import edu.neu.madcourse.shuwanhuang.numad18s_shuwanhuang.R;
 
 public class ControlFragment extends Fragment {
 
-    private static final int MUSIC_ON = 0;
-    private static final int MUSIC_OFF = 1;
+    private static final int LEVEL_MUSIC_ON = 0;
+    private static final int LEVEL_MUSIC_OFF = 1;
+
     private boolean musicOn = true;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        View rootView =
-                inflater.inflate(R.layout.fragment_control, container, false);
+        View rootView = inflater.inflate(R.layout.fragment_control, container, false);
+        View selectButton = rootView.findViewById(R.id.button_select);
+        View pauseButton = rootView.findViewById(R.id.button_pause);
         final View musicButton = rootView.findViewById(R.id.button_music);
-        View submit = rootView.findViewById(R.id.button_submit);
+
+        selectButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                ((GameActivity) getActivity()).onSelectWord();
+            }
+        });
+
+        pauseButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                ((GameActivity) getActivity()).finish();
+            }
+        });
 
         musicButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -29,20 +44,15 @@ public class ControlFragment extends Fragment {
                 Drawable drawable = musicButton.getBackground();
                 if (musicOn) {
                     ((GameActivity)getActivity()).pauseMusic();
-                    drawable.setLevel(MUSIC_OFF);
+                    drawable.setLevel(LEVEL_MUSIC_OFF);
                 } else {
                     ((GameActivity)getActivity()).resumeMusic();
-                    drawable.setLevel(MUSIC_ON);
+                    drawable.setLevel(LEVEL_MUSIC_ON);
                 }
                 musicOn = !musicOn;
             }
         });
-        submit.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                ((GameActivity) getActivity()).onSelectWord();
-            }
-        });
+
         return rootView;
     }
 

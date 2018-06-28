@@ -8,7 +8,7 @@
    tools:context=".wordgame.GameActivity">
 
    <ImageButton
-       android:id="@+id/button_submit"
+       android:id="@+id/button_select"
        android:layout_width="@dimen/control_button_size"
        android:layout_height="@dimen/control_button_size"
        android:background="@drawable/checkmark"/>

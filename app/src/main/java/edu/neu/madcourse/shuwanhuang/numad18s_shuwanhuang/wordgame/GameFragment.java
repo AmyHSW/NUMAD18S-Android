@@ -1,6 +1,7 @@
 package edu.neu.madcourse.shuwanhuang.numad18s_shuwanhuang.wordgame;
 
 import android.app.Fragment;
+import android.content.Context;
 import android.media.AudioManager;
 import android.media.SoundPool;
 import android.os.Bundle;
@@ -21,13 +22,14 @@ import java.util.Stack;
 public class GameFragment extends Fragment {
 
     public enum Phase {
-        ONE, TWO,
+        ONE, TWO, OVER,
     }
 
-    public static final String GAME = "Scroggle";
+    public static final String GAME_NAME = "Scroggle";
     public static final int N = 9;
-    // TODO: time format
+    public static final int STARTING_SCORE = 0;
     public static final int SECONDS_PER_PHASE = 30; // TODO: change to 90
+
     private static final long MILLIS_PER_PHASE = SECONDS_PER_PHASE * 1000;
     private static final long MILLIS_PER_TICK = 1000L;
     private static final int[] LARGE_IDS = {R.id.large1, R.id.large2, R.id.large3,
@@ -53,10 +55,13 @@ public class GameFragment extends Fragment {
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
+        Log.d(GAME_NAME, "start onCreate GameFragment");
         super.onCreate(savedInstanceState);
         // Retain this fragment across configuration changes.
         setRetainInstance(true);
         initGame();
+        Log.d(GAME_NAME, "finish onCreate GameFragment");
+
         // TODO: Sound, maybe move to somewhere else?
         mSoundPool = new SoundPool(3, AudioManager.STREAM_MUSIC, 0);
 //        mSoundX = mSoundPool.load(getActivity(), R.raw.sergenious_movex, 1);
@@ -66,7 +71,7 @@ public class GameFragment extends Fragment {
     }
 
     public void initGame() {
-        Log.d(GAME, "init game");
+        Log.d(GAME_NAME, "init game");
         activity = (GameActivity) getActivity();
         initWords();
         initBoard();
@@ -74,7 +79,7 @@ public class GameFragment extends Fragment {
         score = 0;
         initTimer();
         phase = Phase.ONE;
-        Log.d(GAME, "starting phase1");
+        Log.d(GAME_NAME, "starting phase1");
         timer.start();
     }
 
@@ -122,15 +127,16 @@ public class GameFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        View rootView =
-                inflater.inflate(R.layout.large_board, container, false);
+        Log.d(GAME_NAME, "start onCreateView GameFragment");
+        View rootView = inflater.inflate(R.layout.large_board, container, false);
         initViews(rootView);
         updateBoardView();
+        Log.d(GAME_NAME, "finish onCreateView GameFragment");
         return rootView;
     }
 
     private void initViews(View rootView) {
-        Log.d(GAME, "init views");
+        Log.d(GAME_NAME, "init views");
         board.setView(rootView);
         Tile[] largeTiles = board.getSubTiles();
         for (int i = 0; i < N; i++) {
@@ -166,15 +172,38 @@ public class GameFragment extends Fragment {
     public void onPause() {
         super.onPause();
         timer.cancel();
+        if (phase == Phase.OVER) {
+            Log.d(GAME_NAME, "delete game data");
+            activity.getSharedPreferences(GameActivity.PREF_NAME, Context.MODE_PRIVATE).edit()
+                    .remove(GameActivity.PREF_RESTORE).commit();
+        } else {
+            Log.d(GAME_NAME, "save game data");
+            activity.getSharedPreferences(GameActivity.PREF_NAME, Context.MODE_PRIVATE).edit()
+                    .putString(GameActivity.PREF_RESTORE, getState()).commit();
+        }
+        activity.finish();
+    }
+
+    // Serialize the game state into a string
+    private String getState() {
+        return "dummy"; // TODO
+    }
+
+    /**
+     * Restores run-time game state from stateStr.
+     * @param stateStr serialized game state
+     */
+    public void restoreState(String stateStr) {
+        
     }
 
     // Called when the player click on the letter.
     private void onClickLetter(LetterTile letter) {
         if (!current.isEmpty() && current.peek() == letter) {
-            Log.d(GAME, "unselect " + letter.getLetter());
+            Log.d(GAME_NAME, "unselect " + letter.getLetter());
             current.pop().unselect();
         } else if (isValidMove(letter)) {
-            Log.d(GAME, "select " + letter.getLetter());
+            Log.d(GAME_NAME, "select " + letter.getLetter());
             letter.select();
             current.push(letter);
         }
@@ -210,11 +239,10 @@ public class GameFragment extends Fragment {
         String word = getSelectedWord();
         current.clear();
         int delta = GameUtils.calculateScore(dbTable, word);
-        // TODO
-        // if score>0, beep
+        // TODO if delta>0, beep
         score += delta;
         updateScore(score);
-        Log.d(GAME, "select word: " + word + " (" + delta + " points)");
+        Log.d(GAME_NAME, "select word: " + word + " (" + delta + " points)");
 
         if (phase == Phase.ONE) {
             if (!board.isAvailable(phase)) {
@@ -278,13 +306,14 @@ public class GameFragment extends Fragment {
             gameOver();
             return;
         }
-        Log.d(GAME, "starting phase2");
+        Log.d(GAME_NAME, "starting phase2");
         timer.start();
     }
 
     private void gameOver() {
+        phase = Phase.OVER;
         timer.cancel();
-        Log.d(GAME, "game over");
+        Log.d(GAME_NAME, "game over");
         ((GameActivity) getActivity()).showScore(score);
     }
 

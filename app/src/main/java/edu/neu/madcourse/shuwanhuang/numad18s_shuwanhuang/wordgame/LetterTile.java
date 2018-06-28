@@ -14,7 +14,7 @@ public class LetterTile extends Tile {
     private final char letter;
     private State state;
 
-    public LetterTile(int index, Tile superTile, char letter) {
+    LetterTile(int index, Tile superTile, char letter) {
         super(index, superTile, null);
         this.letter = letter;
         this.state = State.UNSELECTED;

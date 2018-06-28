@@ -2,9 +2,11 @@ package edu.neu.madcourse.shuwanhuang.numad18s_shuwanhuang.wordgame;
 
 import android.app.AlertDialog;
 import android.app.Fragment;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -13,18 +15,18 @@ import edu.neu.madcourse.shuwanhuang.numad18s_shuwanhuang.R;
 
 public class MainFragment extends Fragment {
 
-    private AlertDialog mDialog;
+    private AlertDialog dialog;
+    private View continueButton;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        View rootView =
-                inflater.inflate(R.layout.fragment_main, container, false);
-        // Handle buttons here...
-        View newButton = rootView.findViewById(R.id.new_button);
-        View continueButton = rootView.findViewById(R.id.continue_button);
-        View aboutButton = rootView.findViewById(R.id.about_button);
-        View acknowledgeButton = rootView.findViewById(R.id.acknowledge_button);
+        View rootView = inflater.inflate(R.layout.fragment_main, container, false);
+        View newButton = rootView.findViewById(R.id.button_new);
+        continueButton = rootView.findViewById(R.id.button_continue);
+        View aboutButton = rootView.findViewById(R.id.button_about);
+        View acknowledgeButton = rootView.findViewById(R.id.button_acknowledge);
+
         newButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -32,6 +34,7 @@ public class MainFragment extends Fragment {
                 getActivity().startActivity(intent);
             }
         });
+
         continueButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -40,6 +43,7 @@ public class MainFragment extends Fragment {
                 getActivity().startActivity(intent);
             }
         });
+
         aboutButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -49,13 +53,12 @@ public class MainFragment extends Fragment {
                 builder.setPositiveButton(R.string.ok_label,
                         new DialogInterface.OnClickListener() {
                             @Override
-                            public void onClick(DialogInterface dialogInterface, int i) {
-                                // nothing
-                            }
+                            public void onClick(DialogInterface dialogInterface, int i) { }
                         });
-                mDialog = builder.show();
+                dialog = builder.show();
             }
         });
+
         acknowledgeButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -65,22 +68,34 @@ public class MainFragment extends Fragment {
                 builder.setPositiveButton(R.string.ok_label,
                         new DialogInterface.OnClickListener() {
                             @Override
-                            public void onClick(DialogInterface dialogInterface, int i) {
-                                // nothing
-                            }
+                            public void onClick(DialogInterface dialogInterface, int i) { }
                         });
-                mDialog = builder.show();
+                dialog = builder.show();
             }
         });
+
         return rootView;
     }
 
     @Override
     public void onPause() {
         super.onPause();
+        if (dialog != null)
+            dialog.dismiss();
+    }
 
-        // Get rid of the about dialog if it's still up
-        if (mDialog != null)
-            mDialog.dismiss();
+    @Override
+    public void onResume() {
+        super.onResume();
+        String gameData = getActivity()
+                .getSharedPreferences(GameActivity.PREF_NAME, Context.MODE_PRIVATE)
+                .getString(GameActivity.PREF_RESTORE, null);
+        if (gameData == null) {
+            Log.d(GameFragment.GAME_NAME, "no game data");
+            continueButton.setVisibility(View.GONE);
+        } else {
+            Log.d(GameFragment.GAME_NAME, "has game data");
+            continueButton.setVisibility(View.VISIBLE);
+        }
     }
 }

@@ -9,7 +9,7 @@ public class Tile {
     private final Tile[] subTiles;
     protected View view;
 
-    public Tile(int index, Tile superTile, Tile[] subTiles) {
+    Tile(int index, Tile superTile, Tile[] subTiles) {
       this.index = index;
       this.superTile = superTile;
       this.subTiles = subTiles;

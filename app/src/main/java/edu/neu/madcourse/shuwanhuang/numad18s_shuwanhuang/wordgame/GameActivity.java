@@ -5,7 +5,6 @@ import android.app.Dialog;
 import android.content.DialogInterface;
 import android.media.MediaPlayer;
 import android.os.Bundle;
-import android.os.Handler;
 import android.support.v4.app.FragmentActivity;
 import android.util.Log;
 
@@ -17,8 +16,7 @@ public class GameActivity extends FragmentActivity {
     public static final String PREF_RESTORE = "pref_restore";
     public static final String KEY_RESTORE = "key_restore";
     private MediaPlayer mMediaPlayer;
-    private Handler mHandler = new Handler();
-    private GameFragment mGameFragment;
+    private GameFragment gameFragment;
     private InfoFragment infoFragment;
 
     @Override
@@ -26,7 +24,7 @@ public class GameActivity extends FragmentActivity {
         Log.d(GameFragment.GAME_NAME, "start onCreate GameActivity");
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_game);
-        mGameFragment = (GameFragment) getFragmentManager()
+        gameFragment = (GameFragment) getFragmentManager()
                 .findFragmentById(R.id.fragment_game);
         infoFragment = (InfoFragment) getFragmentManager()
                 .findFragmentById(R.id.fragment_info);
@@ -35,7 +33,7 @@ public class GameActivity extends FragmentActivity {
             String gameData = getSharedPreferences(GameActivity.PREF_NAME, MODE_PRIVATE)
                     .getString(PREF_RESTORE, null);
             if (gameData != null) {
-                mGameFragment.restoreState(gameData);
+                gameFragment.restoreState(gameData);
             }
         }
         Log.d(GameFragment.GAME_NAME, "finish onCreate GameActivity");
@@ -67,7 +65,7 @@ public class GameActivity extends FragmentActivity {
     }
 
     public void onSelectWord() {
-        mGameFragment.onSelectWord();
+        gameFragment.onSelectWord();
     }
 
     public void updateTime(int seconds) {

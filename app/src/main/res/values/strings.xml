@@ -47,5 +47,8 @@
         Ultimate Tic Tac Toe (UTTT) example in textbook Hello, Android 4th Edition
     </string>
     <string name="toast_move_to_phase_two">Phase 2</string>
+    <string name="toast_find_valid_word">found %1$s</string>
+    <string name="toast_find_invalid_word">%1$s is not a word</string>
+    <string name="toast_time_reminder">%1$d seconds left</string>
 
 </resources>

@@ -33,6 +33,7 @@ public class GameFragment extends Fragment {
     public static final int N = 9;
     public static final int STARTING_SCORE = 0;
     public static final int SECONDS_PER_PHASE = 90;
+    public static final int TIME_REMINDER = 15;
 
     private static final long MILLIS_PER_PHASE = SECONDS_PER_PHASE * 1000;
     private static final long MILLIS_PER_TICK = 1000L;
@@ -337,8 +338,12 @@ public class GameFragment extends Fragment {
         String word = getSelectedWord();
         int delta = GameUtils.calculateScore(dbTable, word);
         if (delta > 0) {
+            Toast.makeText(activity, getString(R.string.toast_find_valid_word, word),
+                    Toast.LENGTH_LONG).show();
             mSoundPool.play(mSoundEarnPoints, mVolume, mVolume, 1, 0, 1f);
         } else {
+            Toast.makeText(activity, getString(R.string.toast_find_invalid_word, word),
+                    Toast.LENGTH_LONG).show();
             mSoundPool.play(mSoundLosePoints, mVolume, mVolume, 1, 0, 1f);
         }
         updateScore(score + delta);
@@ -421,8 +426,7 @@ public class GameFragment extends Fragment {
             gameOver();
             return;
         }
-        Toast.makeText(getActivity(), R.string.toast_move_to_phase_two,
-                Toast.LENGTH_LONG).show();
+        Toast.makeText(activity, R.string.toast_move_to_phase_two, Toast.LENGTH_LONG).show();
         Log.d(GAME_NAME, "starting phase2");
         startTimer(MILLIS_PER_PHASE);
     }

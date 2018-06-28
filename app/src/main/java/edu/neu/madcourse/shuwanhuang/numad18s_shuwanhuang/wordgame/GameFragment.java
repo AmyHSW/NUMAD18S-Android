@@ -99,6 +99,15 @@ public class GameFragment extends Fragment {
             words[i] = wordsLengthNine.get(random.nextInt(wordsLengthNine.size()));
             Log.v("GameFragment", words[i]);
         }
+        for (int i = 0; i < N; i++) {
+            String word = words[i];
+            int[] arrangement = getRandomArrangement();
+            StringBuilder sb = new StringBuilder();
+            for (int j = 0; j < word.length(); j++) {
+                sb.append(word.charAt(arrangement[j]));
+            }
+            words[i] = sb.toString();
+        }
     }
 
     private int[] getRandomArrangement() {
@@ -151,10 +160,8 @@ public class GameFragment extends Fragment {
         board = new Tile(-1, null, largeTiles);
         for (int i = 0; i < N; i++) {
             largeTiles[i] = new Tile(i, board, smallTiles[i]);
-            int[] arrangement = getRandomArrangement();
             for (int j = 0; j < N; j++) {
-                smallTiles[i][j] =
-                        new LetterTile(j, largeTiles[i], words[i].charAt(arrangement[j]));
+                smallTiles[i][j] = new LetterTile(j, largeTiles[i], words[i].charAt(j));
             }
         }
     }

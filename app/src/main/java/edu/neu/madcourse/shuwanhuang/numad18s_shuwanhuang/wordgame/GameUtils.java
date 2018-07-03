@@ -38,4 +38,24 @@ public class GameUtils {
             default: return false;
         }
     }
+
+    public static String toResultString(GameResult result, boolean useUsername) {
+        StringBuilder sb = new StringBuilder();
+        if (useUsername) {
+            sb.append(result.username).append(" won ");
+        }
+        sb.append(result.finalScore).append(" points\n");
+        sb.append("at ").append(result.dateTime);
+        if (result.words.size() > 0) {
+            sb.append("\n");
+            int index = 0;
+            for (int i = 0; i < result.scores.size(); i++) {
+                if (result.scores.get(i) > result.scores.get(index))
+                    index = i;
+            }
+            sb.append("Best word: " + result.words.get(index));
+            sb.append(" (" + result.scores.get(index) + " points)");
+        }
+        return sb.toString();
+    }
 }

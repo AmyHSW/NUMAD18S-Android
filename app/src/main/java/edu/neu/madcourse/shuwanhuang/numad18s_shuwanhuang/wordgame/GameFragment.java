@@ -52,7 +52,7 @@ public class GameFragment extends Fragment {
     // Below are fields relevant to game state
     private String[] words;
     private Tile board;
-    private int score;
+    private GameResult result;
     private long time;
     private Phase phase;
     private Stack<LetterTile> current;
@@ -84,7 +84,7 @@ public class GameFragment extends Fragment {
         validArrangements = getAllValidArrangement(new ArrayList<int[]>());
         initWords();
         initBoard();
-        score = 0;
+        result = new GameResult("DUMMY"); // TODO: use real username, digit and letter only
         time = MILLIS_PER_PHASE;
         startTimer(MILLIS_PER_PHASE);
         phase = Phase.ONE;
@@ -259,7 +259,7 @@ public class GameFragment extends Fragment {
                 sb.append(letter).append(",");
             }
         }
-        sb.append(score).append(",");
+        sb.append(result.toStateString()).append(",");
         sb.append(time).append(",");
         sb.append(phase).append(",");
         for (LetterTile letter: current) {
@@ -290,7 +290,8 @@ public class GameFragment extends Fragment {
             }
         }
         updateBoardView();
-        updateScore(Integer.parseInt(state[index++]));
+        result = GameResult.valueOf(state[index++]);
+        updateScore();
         updateTime(Long.parseLong(state[index++]));
         startTimer(time);
         phase = Phase.valueOf(state[index++]);
@@ -337,8 +338,8 @@ public class GameFragment extends Fragment {
         if (current.isEmpty()) return;
 
         String word = getSelectedWord();
-        int delta = GameUtils.calculateScore(dbTable, word);
-        if (delta > 0) {
+        int score = GameUtils.calculateScore(dbTable, word);
+        if (score > 0) {
             Toast.makeText(activity, getString(R.string.toast_find_valid_word, word),
                     Toast.LENGTH_LONG).show();
             mSoundPool.play(mSoundEarnPoints, mVolume, mVolume, 1, 0, 1f);
@@ -347,12 +348,14 @@ public class GameFragment extends Fragment {
                     Toast.LENGTH_LONG).show();
             mSoundPool.play(mSoundLosePoints, mVolume, mVolume, 1, 0, 1f);
         }
-        updateScore(score + delta);
-        Log.d(GAME_NAME, "select word: " + word + " (" + delta + " points)");
+
+        result.addWord(word, score);
+        updateScore();
+        Log.d(GAME_NAME, "select word: " + word + " (" + score + " points)");
 
         if (phase == Phase.ONE) {
             closeAllSubTiles(current.peek().getSuperTile());
-            if (delta < 0) {
+            if (score < 0) {
                 for (LetterTile letter: current) {
                     letter.close();
                 }
@@ -393,9 +396,8 @@ public class GameFragment extends Fragment {
         return sb.toString();
     }
 
-    private void updateScore(int score) {
-        this.score = score;
-        activity.updateScore(score);
+    private void updateScore() {
+        activity.updateScore(result.finalScore.intValue());
     }
 
     private void updateTime(long millisUntilFinished) {
@@ -460,6 +462,6 @@ public class GameFragment extends Fragment {
         phase = Phase.OVER;
         timer.cancel();
         Log.d(GAME_NAME, "game over");
-        ((GameActivity) getActivity()).showScore(score);
+        ((GameActivity) getActivity()).showResult(result);
     }
 }

@@ -8,6 +8,14 @@ import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.util.Log;
 
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.HashMap;
+import java.util.Map;
+
 import edu.neu.madcourse.shuwanhuang.numad18s_shuwanhuang.R;
 
 public class GameActivity extends FragmentActivity {
@@ -16,6 +24,7 @@ public class GameActivity extends FragmentActivity {
     public static final String PREF_RESTORE = "pref_restore";
     public static final String KEY_RESTORE = "key_restore";
     private MediaPlayer mMediaPlayer;
+    private DatabaseReference dbRef;
     private GameFragment gameFragment;
     private InfoFragment infoFragment;
 
@@ -24,6 +33,7 @@ public class GameActivity extends FragmentActivity {
         Log.d(GameFragment.GAME_NAME, "start onCreate GameActivity");
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_game);
+        dbRef = FirebaseDatabase.getInstance().getReference();
         gameFragment = (GameFragment) getFragmentManager()
                 .findFragmentById(R.id.fragment_game);
         infoFragment = (InfoFragment) getFragmentManager()
@@ -92,7 +102,22 @@ public class GameActivity extends FragmentActivity {
         infoFragment.updateCurrentWord(currentWord);
     }
 
-    public void showScore(int score) {
+    public void showResult(GameResult result) {
+        result.dateTime = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss")
+                .format(Calendar.getInstance().getTime());
+
+        String key = dbRef.child("results").push().getKey();
+
+        Map<String, Object> childUpdates = new HashMap<>();
+        Map<String, Object> resultValues = result.toMap();
+        childUpdates.put("/results/" + key, resultValues);
+        childUpdates.put("/user/" + result.username + "/" + key, resultValues);
+        dbRef.updateChildren(childUpdates);
+
+        showScore(result.finalScore.intValue());
+    }
+
+    private void showScore(int score) {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setMessage(getString(R.string.show_score, score));
         builder.setCancelable(false);

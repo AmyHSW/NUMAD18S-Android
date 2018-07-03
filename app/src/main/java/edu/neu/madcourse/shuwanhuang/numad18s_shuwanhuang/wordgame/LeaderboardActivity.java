@@ -20,8 +20,9 @@ import edu.neu.madcourse.shuwanhuang.numad18s_shuwanhuang.R;
 public class LeaderboardActivity extends AppCompatActivity {
 
     private static final String TAG = "LeaderboardActivity";
-    private static final String QUERY_ROOT = "scores";
-    private static final int QUERY_LIMIT = 3;
+    private static final String QUERY_ROOT = "results";
+    private static final String QUERY_KEY = "finalScore";
+    private static final int QUERY_LIMIT = 3; // TODO: change to 10
 
     private ListView listView;
     private Query queryTopTen;
@@ -34,14 +35,15 @@ public class LeaderboardActivity extends AppCompatActivity {
 
         listView = findViewById(R.id.leaderboard);
         queryTopTen = FirebaseDatabase.getInstance().getReference(QUERY_ROOT)
-                .orderByValue().limitToLast(QUERY_LIMIT);
+                .orderByChild(QUERY_KEY).limitToLast(QUERY_LIMIT);
         scoresListener = new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 Log.d(TAG, "data changed");
                 List<String> list = new ArrayList<>();
-                for (DataSnapshot score: dataSnapshot.getChildren()) {
-                    list.add(0, String.valueOf(score.getValue(Long.class)));
+                for (DataSnapshot child: dataSnapshot.getChildren()) {
+                    GameResult result = child.getValue(GameResult.class);
+                    list.add(0, GameUtils.toResultString(result, true));
                 }
                 ArrayAdapter<String> adapter = new ArrayAdapter<>(
                         LeaderboardActivity.this, R.layout.leaderboard_list_item, list);
@@ -56,14 +58,14 @@ public class LeaderboardActivity extends AppCompatActivity {
     }
 
     @Override
-    protected void onResume() {
-        super.onResume();
+    protected void onStart() {
+        super.onStart();
         queryTopTen.addValueEventListener(scoresListener);
     }
 
     @Override
-    protected void onPause() {
-        super.onPause();
+    protected void onStop() {
+        super.onStop();
         queryTopTen.removeEventListener(scoresListener);
     }
 }

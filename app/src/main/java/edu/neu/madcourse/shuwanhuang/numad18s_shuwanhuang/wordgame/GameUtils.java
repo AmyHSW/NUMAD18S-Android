@@ -46,7 +46,7 @@ public class GameUtils {
         }
         sb.append(result.finalScore).append(" points\n");
         sb.append("at ").append(result.dateTime);
-        if (result.words.size() > 0) {
+        if (result.words != null && result.words.size() > 0) {
             sb.append("\n");
             int index = 0;
             for (int i = 0; i < result.scores.size(); i++) {

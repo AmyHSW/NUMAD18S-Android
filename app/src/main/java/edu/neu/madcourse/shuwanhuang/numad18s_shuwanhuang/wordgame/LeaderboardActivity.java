@@ -22,7 +22,7 @@ public class LeaderboardActivity extends AppCompatActivity {
     private static final String TAG = "LeaderboardActivity";
     private static final String QUERY_ROOT = "results";
     private static final String QUERY_KEY = "finalScore";
-    private static final int QUERY_LIMIT = 3; // TODO: change to 10
+    private static final int QUERY_LIMIT = 5; // TODO: change to 10
 
     private ListView listView;
     private Query queryTopTen;

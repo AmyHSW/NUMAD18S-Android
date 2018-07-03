@@ -27,8 +27,9 @@
         <activity
             android:name=".AcknowledgementsActivity"
             android:label="@string/acknowledgements_title" />
-        <activity android:name=".wordgame.GameActivity" />
         <activity android:name=".wordgame.MainActivity"></activity>
+        <activity android:name=".wordgame.GameActivity" />
+        <activity android:name=".wordgame.LeaderboardActivity" />
     </application>
 
 </manifest>

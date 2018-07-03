@@ -24,6 +24,7 @@ public class MainFragment extends Fragment {
         View rootView = inflater.inflate(R.layout.fragment_main, container, false);
         View newButton = rootView.findViewById(R.id.button_new);
         continueButton = rootView.findViewById(R.id.button_continue);
+        View leaderboardButton = rootView.findViewById(R.id.button_leaderboard);
         View aboutButton = rootView.findViewById(R.id.button_about);
         View acknowledgeButton = rootView.findViewById(R.id.button_acknowledge);
 
@@ -40,6 +41,14 @@ public class MainFragment extends Fragment {
             public void onClick(View view) {
                 Intent intent = new Intent(getActivity(), GameActivity.class);
                 intent.putExtra(GameActivity.KEY_RESTORE, true);
+                getActivity().startActivity(intent);
+            }
+        });
+
+        leaderboardButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(getActivity(), LeaderboardActivity.class);
                 getActivity().startActivity(intent);
             }
         });

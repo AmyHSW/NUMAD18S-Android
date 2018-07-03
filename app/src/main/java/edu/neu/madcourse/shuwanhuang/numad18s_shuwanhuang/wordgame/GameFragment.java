@@ -11,6 +11,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.Toast;
 
 import edu.neu.madcourse.shuwanhuang.numad18s_shuwanhuang.DatabaseTable;
 import edu.neu.madcourse.shuwanhuang.numad18s_shuwanhuang.R;
@@ -32,6 +33,7 @@ public class GameFragment extends Fragment {
     public static final int N = 9;
     public static final int STARTING_SCORE = 0;
     public static final int SECONDS_PER_PHASE = 90;
+    public static final int TIME_REMINDER = 15;
 
     private static final long MILLIS_PER_PHASE = SECONDS_PER_PHASE * 1000;
     private static final long MILLIS_PER_TICK = 1000L;
@@ -98,6 +100,15 @@ public class GameFragment extends Fragment {
             words[i] = wordsLengthNine.get(random.nextInt(wordsLengthNine.size()));
             Log.v("GameFragment", words[i]);
         }
+        for (int i = 0; i < N; i++) {
+            String word = words[i];
+            int[] arrangement = getRandomArrangement();
+            StringBuilder sb = new StringBuilder();
+            for (int j = 0; j < word.length(); j++) {
+                sb.append(word.charAt(arrangement[j]));
+            }
+            words[i] = sb.toString();
+        }
     }
 
     private int[] getRandomArrangement() {
@@ -150,10 +161,8 @@ public class GameFragment extends Fragment {
         board = new Tile(-1, null, largeTiles);
         for (int i = 0; i < N; i++) {
             largeTiles[i] = new Tile(i, board, smallTiles[i]);
-            int[] arrangement = getRandomArrangement();
             for (int j = 0; j < N; j++) {
-                smallTiles[i][j] =
-                        new LetterTile(j, largeTiles[i], words[i].charAt(arrangement[j]));
+                smallTiles[i][j] = new LetterTile(j, largeTiles[i], words[i].charAt(j));
             }
         }
     }
@@ -289,7 +298,7 @@ public class GameFragment extends Fragment {
         while (index + 1 < state.length) {
             int i = Integer.parseInt(state[index++]);
             int j = Integer.parseInt(state[index++]);
-            current.push((LetterTile) board.getSubTile(i).getSubTile(j));
+            pushLetter((LetterTile) board.getSubTile(i).getSubTile(j));
         }
     }
 
@@ -297,12 +306,13 @@ public class GameFragment extends Fragment {
     private void onClickLetter(LetterTile letter) {
         if (!current.isEmpty() && current.peek() == letter) {
             Log.d(GAME_NAME, "unselect " + letter.getLetter());
-            current.pop().unselect();
+            popLetter();
+            if (!current.contains(letter)) letter.unselect();
         } else if (isValidMove(letter)) {
             mSoundPool.play(mSoundClick, mVolume, mVolume, 1, 0, 1f);
             Log.d(GAME_NAME, "select " + letter.getLetter());
             letter.select();
-            current.push(letter);
+            pushLetter(letter);
         }
         updateBoardView();
     }
@@ -329,8 +339,12 @@ public class GameFragment extends Fragment {
         String word = getSelectedWord();
         int delta = GameUtils.calculateScore(dbTable, word);
         if (delta > 0) {
+            Toast.makeText(activity, getString(R.string.toast_find_valid_word, word),
+                    Toast.LENGTH_LONG).show();
             mSoundPool.play(mSoundEarnPoints, mVolume, mVolume, 1, 0, 1f);
         } else {
+            Toast.makeText(activity, getString(R.string.toast_find_invalid_word, word),
+                    Toast.LENGTH_LONG).show();
             mSoundPool.play(mSoundLosePoints, mVolume, mVolume, 1, 0, 1f);
         }
         updateScore(score + delta);
@@ -347,7 +361,7 @@ public class GameFragment extends Fragment {
             closeAllSubTiles(board);
         }
         updateBoardView();
-        current.clear();
+        clearCurrent();
 
         if (phase == Phase.ONE) {
             if (!board.isAvailable(phase)) {
@@ -389,11 +403,35 @@ public class GameFragment extends Fragment {
         activity.updateTime((int) (time / 1000));
     }
 
+    private void updateCurrentWord() {
+        StringBuilder sb = new StringBuilder();
+        for (LetterTile letter: current) {
+            sb.append(letter.getLetter());
+        }
+        activity.updateCurrentWord(sb.toString());
+    }
+
+    private void pushLetter(LetterTile letter) {
+        current.push(letter);
+        updateCurrentWord();
+    }
+
+    private LetterTile popLetter() {
+        LetterTile letter = current.pop();
+        updateCurrentWord();
+        return letter;
+    }
+
+    private void clearCurrent() {
+        current.clear();
+        updateCurrentWord();
+    }
+
     private void moveToPhase2() {
         timer.cancel();
 
         while (!current.isEmpty()) {
-            current.pop().unselect();
+            popLetter().unselect();
         }
 
         for (Tile largeTile: board.getSubTiles()) {
@@ -413,6 +451,7 @@ public class GameFragment extends Fragment {
             gameOver();
             return;
         }
+        Toast.makeText(activity, R.string.toast_move_to_phase_two, Toast.LENGTH_LONG).show();
         Log.d(GAME_NAME, "starting phase2");
         startTimer(MILLIS_PER_PHASE);
     }
@@ -423,28 +462,4 @@ public class GameFragment extends Fragment {
         Log.d(GAME_NAME, "game over");
         ((GameActivity) getActivity()).showScore(score);
     }
-
-//    public void restartGame() {
-//        mSoundPool.play(mSoundRewind, mVolume, mVolume, 1, 0, 1f);
-//        // ...
-//        initGame();
-//        initViews(getView());
-//        updateAllViews();
-//    }
-
-    /** Restore the state of the game from the given string. */
-//    public void putState(String gameData) {
-//        String[] fields = gameData.split(",");
-//        int index = 0;
-//        mLastLarge = Integer.parseInt(fields[index++]);
-//        mLastSmall = Integer.parseInt(fields[index++]);
-//        for (int large = 0; large < 9; large++) {
-//            for (int small = 0; small < 9; small++) {
-//                Tile.Owner owner = Tile.Owner.valueOf(fields[index++]);
-//                mSmallTiles[large][small].setOwner(owner);
-//            }
-//        }
-//        setAvailableFromLastMove(mLastSmall);
-//        updateAllViews();
-//    }
 }

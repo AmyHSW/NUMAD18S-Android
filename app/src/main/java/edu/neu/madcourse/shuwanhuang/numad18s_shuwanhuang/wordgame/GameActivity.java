@@ -146,8 +146,8 @@ public class GameActivity extends FragmentActivity {
                 for (DataSnapshot child: dataSnapshot.getChildren()) {
                     GameResult champion = child.getValue(GameResult.class);
                     if (champion != null
-                            && champion.username == result.username
-                            && champion.finalScore == result.finalScore) {
+                            && result.username.equals(champion.username)
+                            && result.finalScore.equals(champion.finalScore)) {
                         sendToFCMChampionTopicAsync(
                                 result.username + " got the new highest score of "
                                 + result.finalScore);
@@ -187,7 +187,7 @@ public class GameActivity extends FragmentActivity {
         }).start();
     }
 
-    private void sendToFCMChampionTopic(String msg) {
+    private void sendToFCMChampionTopic(final String msg) {
         JSONObject jPayload = new JSONObject();
         JSONObject jNotification = new JSONObject();
         try {
@@ -212,16 +212,24 @@ public class GameActivity extends FragmentActivity {
             outputStream.write(jPayload.toString().getBytes());
             outputStream.close();
 
+            InputStream inputStream = conn.getInputStream();
+            final String resp = convertStreamToString(inputStream);
+
             Handler h = new Handler(Looper.getMainLooper());
             h.post(new Runnable() {
                 @Override
                 public void run() {
-                    Log.e(TAG, "got response");
+                    Log.e(TAG, "got response: " + resp);
                 }
             });
 
         } catch (JSONException | IOException e) {
             e.printStackTrace();
         }
+    }
+
+    private static String convertStreamToString(InputStream is) {
+        java.util.Scanner s = new java.util.Scanner(is).useDelimiter("\\A");
+        return s.hasNext() ? s.next() : "";
     }
 }

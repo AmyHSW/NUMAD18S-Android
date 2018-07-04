@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
+import android.widget.Switch;
 
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -28,6 +29,7 @@ public class LeaderboardActivity extends AppCompatActivity {
     private static final int QUERY_LIMIT = 10;
 
     private ListView listView;
+    private Switch toggle;
     private Query queryTopTen;
     private ValueEventListener scoresListener;
 

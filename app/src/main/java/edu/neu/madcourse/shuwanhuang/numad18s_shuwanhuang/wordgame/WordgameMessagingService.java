@@ -1,5 +1,7 @@
 package edu.neu.madcourse.shuwanhuang.numad18s_shuwanhuang.wordgame;
 
+import android.os.Handler;
+import android.os.Looper;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -25,8 +27,16 @@ public class WordgameMessagingService extends FirebaseMessagingService {
         }
     }
 
-    private void sendNotification(String noti) {
+    private void sendNotification(final String noti) {
         Log.d(TAG, "making toast: " + noti);
-        Toast.makeText(getApplicationContext(), noti, Toast.LENGTH_LONG).show();
+        Handler handler = new Handler(Looper.getMainLooper());
+        handler.post(new Runnable() {
+            @Override
+            public void run() {
+                Toast.makeText(getApplicationContext(),
+                        noti,
+                        Toast.LENGTH_LONG).show();
+            }
+        });
     }
 }

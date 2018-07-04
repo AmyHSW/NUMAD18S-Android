@@ -27,9 +27,22 @@
         <activity
             android:name=".AcknowledgementsActivity"
             android:label="@string/acknowledgements_title" />
-        <activity android:name=".wordgame.MainActivity"></activity>
+        <activity android:name=".wordgame.MainActivity" />
         <activity android:name=".wordgame.GameActivity" />
         <activity android:name=".wordgame.LeaderboardActivity" />
+        <activity android:name=".wordgame.LoginActivity" />
+        <service
+            android:name=".wordgame.WordgameMessagingService">
+            <intent-filter>
+                <action android:name="com.google.firebase.MESSAGING_EVENT"/>
+            </intent-filter>
+        </service>
+        <service
+            android:name=".wordgame.WordgameInstanceIDService">
+            <intent-filter>
+                <action android:name="com.google.firebase.INSTANCE_ID_EVENT"/>
+            </intent-filter>
+        </service>
     </application>
 
 </manifest>

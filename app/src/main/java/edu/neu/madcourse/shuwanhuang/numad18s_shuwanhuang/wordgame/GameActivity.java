@@ -21,8 +21,10 @@ import edu.neu.madcourse.shuwanhuang.numad18s_shuwanhuang.R;
 public class GameActivity extends FragmentActivity {
 
     public static final String PREF_NAME = "GameActivity.GameData";
+    public static final String PREF_USERNAME = "pref_username";
     public static final String PREF_RESTORE = "pref_restore";
     public static final String KEY_RESTORE = "key_restore";
+
     private MediaPlayer mMediaPlayer;
     private DatabaseReference dbRef;
     private GameFragment gameFragment;

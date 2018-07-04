@@ -6,6 +6,7 @@
     <string name="button_dictionary">Dictionary</string>
     <string name="button_wordgame">Word Game</string>
     <string name="button_acknowledgements">Acknowledgements</string>
+    <string name="button_logout">Logout</string>
     <string name="view_name">Shuwan Huang</string>
     <string name="view_email">huang.shuw@husky.neu.edu</string>
     <string name="view_year">1st year at NEU</string>
@@ -21,6 +22,7 @@
     <string name="new_game_label">New Game</string>
     <string name="continue_label">Continue</string>
     <string name="leaderboard_label">Leaderboard</string>
+    <string name="scoreboard_label">Scoreboard</string>
     <string name="ok_label">OK</string>
     <string name="score_label">Score: %1$d</string>
     <string name="time_label">Time: %1$02d:%2$02d</string>
@@ -51,5 +53,10 @@
     <string name="toast_find_valid_word">Found %1$s</string>
     <string name="toast_find_invalid_word">%1$s is not a word</string>
     <string name="toast_time_reminder">%1$d seconds left</string>
+    <string name="toast_username_requirement">Username can only have letters and digits</string>
 
+    <string name="button_login">Login</string>
+    <string name="button_skip">Skip</string>
+    <string name="login_hint">Please enter username</string>
+    <string name="text_welcome">Hello, %1$s!</string>
 </resources>

@@ -84,7 +84,9 @@ public class GameFragment extends Fragment {
         validArrangements = getAllValidArrangement(new ArrayList<int[]>());
         initWords();
         initBoard();
-        result = new GameResult("DUMMY"); // TODO: use real username, digit and letter only
+        result = new GameResult(activity
+                .getSharedPreferences(GameActivity.PREF_NAME, Context.MODE_PRIVATE)
+                .getString(GameActivity.PREF_USERNAME, null));
         time = MILLIS_PER_PHASE;
         startTimer(MILLIS_PER_PHASE);
         phase = Phase.ONE;

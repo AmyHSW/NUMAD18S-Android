@@ -19,10 +19,13 @@ import edu.neu.madcourse.shuwanhuang.numad18s_shuwanhuang.R;
 
 public class LeaderboardActivity extends AppCompatActivity {
 
+    public static final String USERNAME = "username";
+
     private static final String TAG = "LeaderboardActivity";
-    private static final String QUERY_ROOT = "results";
+    private static final String LEADERBOARD_ROOT = "results";
+    private static final String SCOREBOARD_ROOT = "user";
     private static final String QUERY_KEY = "finalScore";
-    private static final int QUERY_LIMIT = 5; // TODO: change to 10
+    private static final int QUERY_LIMIT = 10;
 
     private ListView listView;
     private Query queryTopTen;
@@ -34,17 +37,33 @@ public class LeaderboardActivity extends AppCompatActivity {
         setContentView(R.layout.activity_leaderboard);
 
         listView = findViewById(R.id.leaderboard);
-        queryTopTen = FirebaseDatabase.getInstance().getReference(QUERY_ROOT)
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        String username = getIntent().getStringExtra(USERNAME);
+        if (username == null) {
+            initLeaderboard();
+        } else {
+            initScoreboard(username);
+        }
+        queryTopTen.addValueEventListener(scoresListener);
+    }
+
+    private void initLeaderboard() {
+        queryTopTen = FirebaseDatabase.getInstance().getReference(LEADERBOARD_ROOT)
                 .orderByChild(QUERY_KEY).limitToLast(QUERY_LIMIT);
         scoresListener = new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-                Log.d(TAG, "data changed");
+                Log.d(TAG, "leaderboard data changed");
                 List<String> list = new ArrayList<>();
                 for (DataSnapshot child: dataSnapshot.getChildren()) {
                     GameResult result = child.getValue(GameResult.class);
                     list.add(0, GameUtils.toResultString(result, true));
                 }
+                GameUtils.addRanks(list);
                 ArrayAdapter<String> adapter = new ArrayAdapter<>(
                         LeaderboardActivity.this, R.layout.leaderboard_list_item, list);
                 listView.setAdapter(adapter);
@@ -57,10 +76,30 @@ public class LeaderboardActivity extends AppCompatActivity {
         };
     }
 
-    @Override
-    protected void onStart() {
-        super.onStart();
-        queryTopTen.addValueEventListener(scoresListener);
+    private void initScoreboard(String username) {
+        queryTopTen = FirebaseDatabase.getInstance()
+                .getReference(SCOREBOARD_ROOT + "/" + username)
+                .orderByChild(QUERY_KEY).limitToLast(QUERY_LIMIT);
+        scoresListener = new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                Log.d(TAG, "scoreboard data changed");
+                List<String> list = new ArrayList<>();
+                for (DataSnapshot child: dataSnapshot.getChildren()) {
+                    GameResult result = child.getValue(GameResult.class);
+                    list.add(0, GameUtils.toResultString(result, false));
+                }
+                GameUtils.addRanks(list);
+                ArrayAdapter<String> adapter = new ArrayAdapter<>(
+                        LeaderboardActivity.this, R.layout.leaderboard_list_item, list);
+                listView.setAdapter(adapter);
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+                Log.w(TAG, databaseError.toException());
+            }
+        };
     }
 
     @Override

@@ -1,5 +1,7 @@
 package edu.neu.madcourse.shuwanhuang.numad18s_shuwanhuang.wordgame;
 
+import java.util.List;
+
 import edu.neu.madcourse.shuwanhuang.numad18s_shuwanhuang.DatabaseTable;
 
 public class GameUtils {
@@ -39,13 +41,22 @@ public class GameUtils {
         }
     }
 
+    public static boolean isAlphanumeric(String str) {
+        for (int i = 0; i < str.length(); i++) {
+            if (!Character.isLetterOrDigit(str.charAt(i))) {
+                return false;
+            }
+        }
+        return true;
+    }
+
     public static String toResultString(GameResult result, boolean useUsername) {
         StringBuilder sb = new StringBuilder();
         if (useUsername) {
-            sb.append(result.username).append(" won ");
+            sb.append(result.username).append(" ");
         }
-        sb.append(result.finalScore).append(" points\n");
-        sb.append("at ").append(result.dateTime);
+        sb.append(result.finalScore).append(" points");
+        sb.append("\nTime: ").append(result.dateTime);
         if (result.words != null && result.words.size() > 0) {
             sb.append("\n");
             int index = 0;
@@ -57,5 +68,11 @@ public class GameUtils {
             sb.append(" (" + result.scores.get(index) + " points)");
         }
         return sb.toString();
+    }
+
+    public static void addRanks(List<String> results) {
+        for (int i = 0; i < results.size(); i++) {
+            results.set(i, "Top " + (i + 1) + ": " + results.get(i));
+        }
     }
 }

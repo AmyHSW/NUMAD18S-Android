@@ -5,15 +5,33 @@ import android.app.Dialog;
 import android.content.DialogInterface;
 import android.media.MediaPlayer;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.support.v4.app.FragmentActivity;
 import android.util.Log;
+import android.widget.ArrayAdapter;
 
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.Query;
+import com.google.firebase.database.ValueEventListener;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.IOError;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import edu.neu.madcourse.shuwanhuang.numad18s_shuwanhuang.R;
@@ -25,8 +43,14 @@ public class GameActivity extends FragmentActivity {
     public static final String PREF_RESTORE = "pref_restore";
     public static final String KEY_RESTORE = "key_restore";
 
+    private static final String SERVER_KEY = "key=AAAAwU4SqgA:APA91bHYqBEJZ8e-gem1RsAeekl7UndlfW1om7_HHAoelfeAzTB6NDle8Sjm9z76Xc4U7k8U_HOiWqAIhWayrLwDvE_bojo6fcw6XzeuAWG1MsyraDz2yycFEmFn1JCrdxdOGYeKF7ouCzbLEvDKKioc1W8BMD2xhg";
+
+    private static final String TAG = GameActivity.class.getSimpleName();
+    private static final DatabaseReference dbRef = FirebaseDatabase.getInstance().getReference();
+    private static final Query qChampion =
+            dbRef.child("results").orderByChild("finalScore").limitToLast(1);
+
     private MediaPlayer mMediaPlayer;
-    private DatabaseReference dbRef;
     private GameFragment gameFragment;
     private InfoFragment infoFragment;
 
@@ -35,7 +59,7 @@ public class GameActivity extends FragmentActivity {
         Log.d(GameFragment.GAME_NAME, "start onCreate GameActivity");
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_game);
-        dbRef = FirebaseDatabase.getInstance().getReference();
+
         gameFragment = (GameFragment) getFragmentManager()
                 .findFragmentById(R.id.fragment_game);
         infoFragment = (InfoFragment) getFragmentManager()
@@ -104,7 +128,7 @@ public class GameActivity extends FragmentActivity {
         infoFragment.updateCurrentWord(currentWord);
     }
 
-    public void showResult(GameResult result) {
+    public void showResult(final GameResult result) {
         result.dateTime = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss")
                 .format(Calendar.getInstance().getTime());
 
@@ -116,6 +140,26 @@ public class GameActivity extends FragmentActivity {
         childUpdates.put("/user/" + result.username + "/" + key, resultValues);
         dbRef.updateChildren(childUpdates);
 
+        qChampion.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                for (DataSnapshot child: dataSnapshot.getChildren()) {
+                    GameResult champion = child.getValue(GameResult.class);
+                    if (champion != null
+                            && champion.username == result.username
+                            && champion.finalScore == result.finalScore) {
+                        sendToFCMChampionTopicAsync(
+                                result.username + " got the new highest score of "
+                                + result.finalScore);
+                    }
+                }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+                Log.w(TAG, databaseError.toException());
+            }
+        });
         showScore(result.finalScore.intValue());
     }
 
@@ -131,5 +175,53 @@ public class GameActivity extends FragmentActivity {
         });
         final Dialog dialog = builder.create();
         dialog.show();
+    }
+
+    private void sendToFCMChampionTopicAsync(final String msg) {
+        Log.d(TAG, "sending to FCM /topics/champion: " + msg);
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                sendToFCMChampionTopic(msg);
+            }
+        }).start();
+    }
+
+    private void sendToFCMChampionTopic(String msg) {
+        JSONObject jPayload = new JSONObject();
+        JSONObject jNotification = new JSONObject();
+        try {
+            jNotification.put("message", "Word Game Message");
+            jNotification.put("body", msg);
+            jNotification.put("sound", "default");
+            jNotification.put("badge", "1");
+            jNotification.put("click_action", "OPEN_ACTIVITY_1");
+
+            jPayload.put("to", "/topics/champion");
+            jPayload.put("priority", "high");
+            jPayload.put("notification", jNotification);
+
+            URL url = new URL("https://fcm.googleapis.com/fcm/send");
+            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+            conn.setRequestMethod("POST");
+            conn.setRequestProperty("Authorization", SERVER_KEY);
+            conn.setRequestProperty("Content-Type", "application/json");
+            conn.setDoOutput(true);
+
+            OutputStream outputStream = conn.getOutputStream();
+            outputStream.write(jPayload.toString().getBytes());
+            outputStream.close();
+
+            Handler h = new Handler(Looper.getMainLooper());
+            h.post(new Runnable() {
+                @Override
+                public void run() {
+                    Log.e(TAG, "got response");
+                }
+            });
+
+        } catch (JSONException | IOException e) {
+            e.printStackTrace();
+        }
     }
 }

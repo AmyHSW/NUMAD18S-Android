@@ -1,8 +1,10 @@
 package edu.neu.madcourse.shuwanhuang.numad18s_shuwanhuang.wordgame;
 
+import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.Switch;
@@ -25,7 +27,8 @@ public class LeaderboardActivity extends AppCompatActivity {
     private static final String TAG = "LeaderboardActivity";
     private static final String LEADERBOARD_ROOT = "results";
     private static final String SCOREBOARD_ROOT = "user";
-    private static final String QUERY_KEY = "finalScore";
+    private static final String QUERY_FINAL = "finalScore";
+    private static final String QUERY_BEST_WORD = "bestWordScore";
     private static final int QUERY_LIMIT = 10;
 
     private ListView listView;
@@ -38,12 +41,24 @@ public class LeaderboardActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_leaderboard);
 
+        toggle = findViewById(R.id.switch1);
         listView = findViewById(R.id.leaderboard);
+
+        toggle.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                setupListenerToDB();
+            }
+        });
     }
 
     @Override
     protected void onStart() {
         super.onStart();
+        setupListenerToDB();
+    }
+
+    private void setupListenerToDB() {
         String username = getIntent().getStringExtra(USERNAME);
         if (username == null) {
             initLeaderboard();
@@ -54,8 +69,13 @@ public class LeaderboardActivity extends AppCompatActivity {
     }
 
     private void initLeaderboard() {
-        queryTopTen = FirebaseDatabase.getInstance().getReference(LEADERBOARD_ROOT)
-                .orderByChild(QUERY_KEY).limitToLast(QUERY_LIMIT);
+        if (toggle.isChecked()) {
+            queryTopTen = FirebaseDatabase.getInstance().getReference(LEADERBOARD_ROOT)
+                    .orderByChild(QUERY_BEST_WORD).limitToLast(QUERY_LIMIT);
+        } else {
+            queryTopTen = FirebaseDatabase.getInstance().getReference(LEADERBOARD_ROOT)
+                    .orderByChild(QUERY_FINAL).limitToLast(QUERY_LIMIT);
+        }
         scoresListener = new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
@@ -79,9 +99,16 @@ public class LeaderboardActivity extends AppCompatActivity {
     }
 
     private void initScoreboard(String username) {
-        queryTopTen = FirebaseDatabase.getInstance()
-                .getReference(SCOREBOARD_ROOT + "/" + username)
-                .orderByChild(QUERY_KEY).limitToLast(QUERY_LIMIT);
+        if (toggle.isChecked()) {
+            queryTopTen = FirebaseDatabase.getInstance()
+                    .getReference(SCOREBOARD_ROOT + "/" + username)
+                    .orderByChild(QUERY_BEST_WORD).limitToLast(QUERY_LIMIT);
+        } else {
+            queryTopTen = FirebaseDatabase.getInstance()
+                    .getReference(SCOREBOARD_ROOT + "/" + username)
+                    .orderByChild(QUERY_FINAL).limitToLast(QUERY_LIMIT);
+        }
+
         scoresListener = new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {

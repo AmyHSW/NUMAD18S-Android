@@ -14,7 +14,10 @@ public class GameResult {
     public Long finalScore;
     public List<String> words;
     public List<Long> scores;
+
     public String dateTime;  // set at the end of game
+    public String bestWord;  // set at the end of game
+    public Long bestWordScore;  // set at the end of game
 
     public GameResult() {
         // Default constructor required for calls to DataSnapshot.getValue(User.class)
@@ -40,6 +43,8 @@ public class GameResult {
         result.put("words", words);
         result.put("scores", scores);
         result.put("dateTime", dateTime);
+        result.put("bestWord", bestWord);
+        result.put("bestWordScore", bestWordScore);
         return result;
     }
 

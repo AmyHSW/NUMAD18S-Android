@@ -129,17 +129,28 @@ public class GameActivity extends FragmentActivity {
     }
 
     public void showResult(final GameResult result) {
+        // Set the remaining fields of result
         result.dateTime = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss")
                 .format(Calendar.getInstance().getTime());
+        if (result.words != null && result.words.size() > 0) {
+            int index = 0;
+            for (int i = 0; i < result.scores.size(); i++) {
+                if (result.scores.get(i) > result.scores.get(index))
+                    index = i;
+            }
+            result.bestWord = result.words.get(index);
+            result.bestWordScore = result.scores.get(index);
+        }
 
+        // send new result to DB
         String key = dbRef.child("results").push().getKey();
-
         Map<String, Object> childUpdates = new HashMap<>();
         Map<String, Object> resultValues = result.toMap();
         childUpdates.put("/results/" + key, resultValues);
         childUpdates.put("/user/" + result.username + "/" + key, resultValues);
         dbRef.updateChildren(childUpdates);
 
+        // if win new champion, send notification to FCM /topics/champion
         qChampion.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {

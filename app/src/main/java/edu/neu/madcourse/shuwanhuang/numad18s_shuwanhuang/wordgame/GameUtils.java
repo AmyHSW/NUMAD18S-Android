@@ -57,15 +57,9 @@ public class GameUtils {
         }
         sb.append(result.finalScore).append(" points");
         sb.append("\nTime: ").append(result.dateTime);
-        if (result.words != null && result.words.size() > 0) {
-            sb.append("\n");
-            int index = 0;
-            for (int i = 0; i < result.scores.size(); i++) {
-                if (result.scores.get(i) > result.scores.get(index))
-                    index = i;
-            }
-            sb.append("Best word: " + result.words.get(index));
-            sb.append(" (" + result.scores.get(index) + " points)");
+        if (result.bestWord != null) {
+            sb.append("\nBest word: " + result.bestWord);
+            sb.append(" (" + result.bestWordScore + " points)");
         }
         return sb.toString();
     }

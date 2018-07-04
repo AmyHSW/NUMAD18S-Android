@@ -1,0 +1,55 @@
+{
+  "project_info": {
+    "project_number": "830238534144",
+    "firebase_url": "https://scroggle-c015b.firebaseio.com",
+    "project_id": "scroggle-c015b",
+    "storage_bucket": "scroggle-c015b.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:830238534144:android:faf376f954da5980",
+        "android_client_info": {
+          "package_name": "edu.neu.madcourse.shuwanhuang.numad18s_shuwanhuang"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "830238534144-q55o5t7nefda9jg169t1cbtjgct5lb77.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "edu.neu.madcourse.shuwanhuang.numad18s_shuwanhuang",
+            "certificate_hash": "6cb7839745d8da41deee8519da603bad68092d8d"
+          }
+        },
+        {
+          "client_id": "830238534144-rf8hq41qprf7ri18kl89969o8i3bog0t.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDAgHjcdNq0iDee7htd-N5Uc35OKkzmPq8"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "830238534144-rf8hq41qprf7ri18kl89969o8i3bog0t.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
